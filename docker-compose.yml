@@ -1,0 +1,52 @@
+version: "3.8"
+services:
+  app:
+    image: img_kivyapp
+    container_name: kivy_app
+    depends_on:
+      - server
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    ports:
+      - 8081:80
+    tty: true
+    networks:
+      - app_network
+    ulimits:
+      memlock: -1
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    environment:
+      - DISPLAY=:0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+
+  server:
+    image: img_server
+    container_name: ssl_server
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - 8080:80
+    volumes:
+      - ${DATASET_PATH}:/database
+    networks:
+      - app_network
+    ipc: host
+    tty: true
+    ulimits:
+      memlock: -1
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+
+networks:
+  app_network:
+    driver: bridge
