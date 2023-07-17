@@ -1,0 +1,164 @@
+<MainScreen>:
+    orientation: 'vertical'
+    BoxLayout:
+        id: page_button
+        orientation: 'horizontal'
+        adaptive_height: False
+        size_hint_y: None
+        height: 55
+        Button:
+            id: run
+            text:'Clustering'
+            on_release: root.run()
+
+        Button:
+            id: start
+            text: 'Start'
+            on_release: root.ids.image_grid.start()
+        Button:
+            id : semi-L
+            text: "semi-learn"
+            on_release: root.ids.image_grid.semi_learning_button()
+        Label:
+            id: node_name
+            text: "Current\n Node"
+            color: "blue"       
+        MDTextField:
+            id: class_field
+            hint_text:"Class"
+            helper_text: "Error Occured"
+            helper_text_mode: "on_error"
+            mode: "fill"
+            max_test_length: 10
+        Button:
+            id:save
+            text:'Save'
+            on_release: root.ids.image_grid.save()
+            background_color: 'black'
+        Button:
+            id: mode_change
+            text: root.ids.image_grid.modeText
+            on_release: root.ids.image_grid.change_save_mode()
+            background_color: "black" 
+        Button:
+            id: node_previou
+            text: 'Node\n Previous'
+            on_release: root.ids.image_grid.node_previous()
+        Button:
+            id: node_next
+            text: 'Node Next'
+            on_release:root.ids.image_grid.node_next()
+        Button:
+            id:previous
+            text:'Page Previous'
+            on_release: root.ids.image_grid.page_previous()
+        Button:
+            id:next
+            text:'Page Next'
+            on_release: root.ids.image_grid.page_next()
+        Button:
+            id:remain
+            text:"Remain"
+            on_release: root.ids.image_grid.show_remain()
+        Button:
+            id:semi-prev
+            text:"Previous"
+            on_release: root.ids.image_grid.semi_previous_button()
+            background_color: 'red'
+        Button:
+            id:semi-next
+            text:"Next"
+            on_release: root.ids.image_grid.semi_next_button()
+            background_color: 'red'
+        Button:
+            id:start-semi-learning
+            text:"Semi-Leaning"
+            on_release: root.swavModuleExecution(); root.ids.image_grid.start_semi_learning()
+            background_color: 'red'
+        Label:
+            id: timer_text
+            text: root.ids.image_grid.timer.text
+            color: "red"
+        ToggleButton:
+            id: timer_button
+            text:f'Start Timer'
+            state: "normal"
+            background_color: "green"
+            on_release: root.ids.image_grid.timer.startTimer() if self.state == "down" else root.ids.image_grid.timer.stopTimer()
+            
+    BoxLayout:
+        id: main
+        AnchorLayout:
+            anchor_x: 'center'
+            anchor_y: 'center' 
+            MyGridLayout:
+                root: root
+                id: image_grid
+                text: ""
+        Image:
+            id: preview
+            source: ""
+            size_hint: .2,1
+
+
+<ScrollView>:
+    MDList:
+        background_color: [1,0,1,1]
+
+<MyGridLayout>:
+    cols:20
+    col_default_width: (self.width - self.spacing[0] * self.cols) / self.cols
+    row_default_height: (self.width - self.spacing[0] * self.cols) / self.cols
+    row_force_default: True
+    col_force_default: True
+    padding: dp(4), dp(4)
+    spacing: dp(4)
+
+<MDSmartTile>:
+    box_color : 0,0,0,0
+
+<LoadDialog>:
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+    FileChooserListView:
+        id: filechooser
+
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        Button:
+            text: "Cancel"
+            on_release: root.cancel()
+
+        Button:
+            text: "Load"
+            on_release: root.load(filechooser.path, filechooser.selection)
+
+<SaveDialog>:
+    text_input: text_input
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        FileChooserListView:
+            id: filechooser
+            on_selection: text_input.text = self.selection and self.selection[0] or ''
+
+        TextInput:
+            id: text_input
+            size_hint_y: None
+            height: 30
+            multiline: False
+
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            Button:
+                text: "Cancel"
+                on_release: root.cancel()
+
+            Button:
+                text: "Save"
+                on_release: root.save(filechooser.path, text_input.text)
