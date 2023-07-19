@@ -17,16 +17,13 @@ from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.filechooser import FileChooser, FileChooserListLayout, FileChooserIconLayout
 from tkinter import filedialog
+import asyncio
+from dotenv import load_dotenv
+from kivy.network.urlrequest import UrlRequest
 
-sys.path.append("/mnt/home/irielab/workspace/projects/kv_demo_app")
-
-SAVEDIR = "./DATABASE"
-# IMAGE_DIR = "/mnt/media/irielab/ubuntu_data/datasets/my_10class_ImageNet2012/val"
-IMAGE_DIR = "/mnt/media/irielab/win_drive/ImageNet/imagenet-object-localization-challenge-2012/ILSVRC/Data/CLS-LOC/10class_train_val"
+load_dotenv()
+DIALOG_DEFAULT_PATH = "/database"
 logging.basicConfig(level=logging.DEBUG, format="%(levelname)s: %(message)s")
-
-DIALOG_DEFAULT_PATH = os.getcwd()
-
 
 class MyGridLayout(MDGridLayout):
     loadfile = ObjectProperty(None)
@@ -51,6 +48,8 @@ class MyGridLayout(MDGridLayout):
         self.modeRemain = False
         self.modeText = "Remove Target"
         self.index = 0
+        self.nodeNmb = 0
+        self.nodeList = []
         logging.info("GRID LAUNCHED")
 
         # print(f"self.fileList is below\n {self.fileList}")
@@ -64,6 +63,11 @@ class MyGridLayout(MDGridLayout):
         
     def change_save_mode(self):
         self.selectSave = not self.selectSave
+        # reset list of pushed tiles
+        for tile in self.pressButtonList:
+            tile.canvas.after.remove(tile.color)
+            tile.canvas.after.remove(tile.rect)
+            
         if not self.selectSave:
             self.modeText = "Remove Target"
             self.root.ids.mode_change.background_color = "black"
@@ -72,6 +76,26 @@ class MyGridLayout(MDGridLayout):
             self.root.ids.mode_change.background_color = "red"
         print(f"mode is {self.modeText} now")
         self.root.ids.mode_change.text = self.modeText
+        
+    def on_success(self, request, result):
+        self.clear_all()
+        success = self.openFile(result["body"], dialog=False)
+        if success:
+            self.show_node(self.startId, self.quantity, self.nodeNmb, clustering=self.clustering)
+    
+    def on_progress(self, request, current_size, total_size):
+        self.progressText.text = f"Clustering Now... {current_size} / {total_size}"
+        print(f"Clustering Now... {current_size} / {total_size}")
+    
+    async def getClusteringTable(self):
+        self.progressText = Label(text=f"Clustering Now...")
+        self.add_widget(self.progressText)
+        endPoint: str = 'http://ssl_server:8000/api/clustering'
+        res = await UrlRequest(endPoint, method='POST', on_success=self.on_success, on_progress=self.on_progress)
+        
+    async def run_clustering(self):
+        self.clear_all()
+        res = self.getClusteringTable()
 
     def start(self):
         self.clear_all()
@@ -180,7 +204,7 @@ class MyGridLayout(MDGridLayout):
             files = self.jsons[str(self.nodeList[nodeNmb])]
             self.index = nodeNmb
             self.len = len(files)
-            print(f"the nums of files is {self.len}")
+            print(f"the No of files is {self.len}")
             endIndex = min(startId + quantity, self.len)
             self.updateLabelText()
             for i in range(startId, endIndex):
@@ -230,7 +254,7 @@ class MyGridLayout(MDGridLayout):
                                 target="{}".format(nodeList[i][1]),
                                 targetPath=self.fileList[nodeList[i][0]],
                                 source=os.path.join(
-                                    IMAGE_DIR, self.fileList[nodeList[i][0]]
+                                    '/dataset', self.fileList[nodeList[i][0]]
                                 ),
                             )
                         )
@@ -397,7 +421,7 @@ class MyGridLayout(MDGridLayout):
             jsons = json.load(f)
         # make a DropItemList
         self.mapLength = len(jsons)
-        logging.debug("JSONS LENGTH IS ", self.mapLength)
+        # logging.debug("The No. of Images is ", self.mapLength)
         return jsons
 
     def writeJson(self, classText, fileName):
@@ -504,58 +528,65 @@ class MyGridLayout(MDGridLayout):
         import tkinter as tk
         global DIALOG_DEFAULT_PATH
         typ = [('JSON File', '*.json'), ('All', '*')]
-        dir = DIALOG_DEFAULT_PATH
+        path = DIALOG_DEFAULT_PATH
         root = tk.Tk()
         root.withdraw()
-        file = filedialog.askopenfilename(filetypes=typ, initialdir=dir)
+        file = filedialog.askopenfilename(filetypes=typ, initialdir=path)
         print(file)
         return file
     
     def show_saveDialog(self):
         global DIALOG_DEFAULT_PATH
         typ = [('JSON File', '*.json'), ('All', '*')]
-        dir = DIALOG_DEFAULT_PATH
-        file = filedialog.asksaveasfilename(filetypes=typ, initialdir=dir)
+        path = DIALOG_DEFAULT_PATH
+        file = filedialog.asksaveasfilename(filetypes=typ, initialdir=path)
         print(file)
         return file
     
-    def openFile(self):
+    def openFile(self, json=None, dialog=True):
         global DIALOG_DEFAULT_PATH
         # add images on the list
-        self.json_path: str = self.show_openDialog()
-        print("json_path = {}".format(self.json_path))
-        print("Type is {}".format(type(self.json_path)))
-        
-        if len(self.json_path) <= 1:
-            print("Please Select JSON file.")
-            
-        else:
-            _, ext = os.path.splitext(self.json_path)
-            print(ext)
-            if not ext == '.json':
-                print("This file is not JSON. Please open a JSON file.")
+        if dialog:
+            self.json_path: str = self.show_openDialog()
+            if len(self.json_path) <= 1:
+                print("Please Select JSON file.")
+                return False
             
             else:
-                
-                self.jsons = self.openJsonImages(self.json_path)
-                self.semiBool = False
-
-                self.fileList = []
-                for fd_path, sb_fd, sb_f in os.walk(IMAGE_DIR):
-                    for imageFile in sb_f:
-                        path = os.path.join(fd_path, imageFile)
-                        self.fileList.append(path)
-
-                self.nodeNmb = 0
-                self.nodeList = []
-                print(f"Load map keys {self.jsons.keys()}")
-                for key in self.jsons.keys():
-                    self.nodeList.append(int(key))
-                # add rest of images not selected
-                self.nodeList.append("rest")
-                return True
+                _, ext = os.path.splitext(self.json_path)
+                print(ext)
+                if not ext == '.json':
+                    print("This file is not JSON. Please open a JSON file.")
+                    return False
+            
+            # load a json file as dict
+            self.jsons = self.openJsonImages(self.json_path)
+                    
+        elif json:
+            self.jsons = json
+        else:
+            print("No json file")
+            return False
         
-        return False
+        # set SmSL mode off
+        self.semiBool = False
+
+        # load images
+        # torch data loader's shuffle must be false
+        self.fileList = []
+        for fd_path, sb_fd, sb_f in os.walk('/dataset'):
+            for imageFile in sb_f:
+                path = os.path.join(fd_path, imageFile)
+                self.fileList.append(path)
+
+        self.nodeNmb = 0
+        self.nodeList = []
+        print(f"Load map keys {self.jsons.keys()}")
+        for key in self.jsons.keys():
+            self.nodeList.append(int(key))
+        # add rest of images not selected
+        self.nodeList.append("rest")
+        return True
             
     
     

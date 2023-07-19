@@ -1,5 +1,6 @@
 from kivymd.uix.imagelist import MDSmartTile
 import logging
+from kivy.graphics import Color, Rectangle
 
 
 class MySmartTile(MDSmartTile):
@@ -11,6 +12,7 @@ class MySmartTile(MDSmartTile):
         self.targetPath = targetPath
         self.press = True
         self.myparent.tiles.append(self.targetPath)
+        self.mipmap = True
 
     def on_release(self):
         self.myparent.tileId = self.id
@@ -19,33 +21,41 @@ class MySmartTile(MDSmartTile):
             f"\nThis tileId is {self.myparent.tileId}\nTarget is {self.myparent.target}\nFlie Path is {self.targetPath}"
         )
         if self.press:
-            self.lines = 2
-            self.box_color = (0, 0, 0, 0.9)
+            with self.canvas.after:
+                if not self.myparent.selectSave:
+                    self.color = Color(1,1,1,0.8)
+                else:
+                    self.color = Color(1,0,0,0.8)
+                self.rect = Rectangle(pos=self.pos, size=self.size)
+                
             if not self.myparent.selectSave:
-                # save buttonID for new json file
-                if not int(self.id) in self.myparent.pressButtonList:
-                    self.myparent.pressButtonList.append(int(self.id))
-
+                # save button instance to manipulate button tiles
+                if not self in self.myparent.pressButtonList:
+                    self.myparent.pressButtonList.append(self)
+                    
+                # save target image path to create json map
                 if not self.targetPath in self.myparent.selectFilePathList:
                     self.myparent.selectFilePathList.append(self.targetPath)
             else:
-                if not self.id in self.myparent.pressButtonList:
+                if not self in self.myparent.pressButtonList:
                     self.myparent.selectFilePathList.append(self.targetPath)
-                    self.myparent.pressButtonList.append(int(self.id))
+                    self.myparent.pressButtonList.append(self)
                     self.myparent.tiles.remove(self.targetPath)
             self.press = False
         else:
-            self.box_color = (0, 0, 0, 0)
+            self.canvas.after.remove(self.color)
+            self.canvas.after.remove(self.rect)
+
             if not self.myparent.selectSave:
-                if int(self.id) in self.myparent.pressButtonList:
-                    self.myparent.pressButtonList.remove(int(self.id))
+                if self in self.myparent.pressButtonList:
+                    self.myparent.pressButtonList.remove(self)
 
                 if self.targetPath in self.myparent.selectFilePathList:
                     self.myparent.selectFilePathList.remove(self.targetPath)
             else:
-                if int(self.id) in self.myparent.pressButtonList:
+                if self in self.myparent.pressButtonList:
                     self.myparent.selectFilePathList.remove(self.targetPath)
-                    self.myparent.pressButtonList.remove(int(self.id))
+                    self.myparent.pressButtonList.remove(self)
                     
                     try:
                         self.myparent.tiles.append(self.targetPath)

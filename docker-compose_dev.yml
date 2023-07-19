@@ -8,8 +8,8 @@ services:
     build:
       context: ./app
       dockerfile: Dockerfile
-    ports:
-      - 8081:80
+    expose:
+      - 80
     tty: true
     networks:
       - app_network
@@ -17,6 +17,9 @@ services:
       memlock: -1
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./app/src/Lib:/app/Lib
+      - ./database:/database
+      - /media/irielab/win_drive1/ImageNet/imagenet-object-localization-challenge-2012/ILSVRC/Data/CLS-LOC/10class_train_val:/dataset
     environment:
       - DISPLAY=:0
     deploy:
@@ -32,9 +35,14 @@ services:
       context: ./server
       dockerfile: Dockerfile
     ports:
-      - 8080:80
+      - 8080:8000
+    expose:
+      - 8000
     volumes:
-      - ${DATASET_PATH}:/database
+      - ./server/weights:/weights
+      - ./server/src:/server/src
+      - ./database:/database
+      - /media/irielab/win_drive1/ImageNet/imagenet-object-localization-challenge-2012/ILSVRC/Data/CLS-LOC/10class_train_val:/dataset
     networks:
       - app_network
     ipc: host
@@ -50,3 +58,4 @@ services:
 networks:
   app_network:
     driver: bridge
+    external: true
