@@ -89,19 +89,19 @@ parser.add_argument("--local_rank", default=0, type=int,
 
 
 def main():
-    global args, best_acc
-    args = parser.parse_args()
-    init_distributed_mode(args)
-    fix_random_seeds(args.seed)
+    global params, best_acc
+    params = parser.parse_args()
+    init_distributed_mode(params)
+    fix_random_seeds(params.seed)
     
     logger, training_stats = initialize_exp(
-        args, "epoch", "loss", "prec1", "prec5", "loss_val", "prec1_val", "prec5_val"
+        params, "epoch", "loss", "prec1", "prec5", "loss_val", "prec1_val", "prec5_val"
     )
 
     # build data
     # ImageFolder has data and labels
-    train_dataset = datasets.ImageFolder(os.path.join(args.data_path, "train"))
-    val_dataset = datasets.ImageFolder(os.path.join(args.data_path, "val"))
+    train_dataset = datasets.ImageFolder(os.path.join(params.data_path, "train"))
+    val_dataset = datasets.ImageFolder(os.path.join(params.data_path, "val"))
     tr_normalize = transforms.Normalize(
         mean=[0.485, 0.456, 0.406], std=[0.228, 0.224, 0.225]
     )
@@ -121,21 +121,21 @@ def main():
     train_loader = torch.utils.data.DataLoader(
         train_dataset,
         sampler=sampler,
-        batch_size=args.batch_size,
-        num_workers=args.workers,
+        batch_size=params.batch_size,
+        num_workers=params.workers,
         pin_memory=True,
     )
     val_loader = torch.utils.data.DataLoader(
         val_dataset,
-        batch_size=args.batch_size,
-        num_workers=args.workers,
+        batch_size=params.batch_size,
+        num_workers=params.workers,
         pin_memory=True,
     )
     logger.info("Building data done")
 
     # build model
-    model = resnet_models.__dict__[args.arch](output_dim=0, eval_mode=True)
-    linear_classifier = RegLog(1000, args.arch, args.global_pooling, args.use_bn)
+    model = resnet_models.__dict__[params.arch](output_dim=0, eval_mode=True)
+    linear_classifier = RegLog(1000, params.arch, params.global_pooling, params.use_bn)
 
     # convert batch norm layers (if any)
     linear_classifier = nn.SyncBatchNorm.convert_sync_batchnorm(linear_classifier)
@@ -145,14 +145,14 @@ def main():
     linear_classifier = linear_classifier.cuda()
     linear_classifier = nn.parallel.DistributedDataParallel(
         linear_classifier,
-        device_ids=[args.gpu_to_work_on],
+        device_ids=[params.gpu_to_work_on],
         find_unused_parameters=True,
     )
     model.eval()
 
     # load weights
-    if os.path.isfile(args.pretrained):
-        state_dict = torch.load(args.pretrained, map_location="cuda:" + str(args.gpu_to_work_on))
+    if os.path.isfile(params.pretrained):
+        state_dict = torch.load(params.pretrained, map_location="cuda:" + str(params.gpu_to_work_on))
         if "state_dict" in state_dict:
             state_dict = state_dict["state_dict"]
         # remove prefixe "module."
@@ -172,26 +172,26 @@ def main():
     # set optimizer
     optimizer = torch.optim.SGD(
         linear_classifier.parameters(),
-        lr=args.lr,
-        nesterov=args.nesterov,
+        lr=params.lr,
+        nesterov=params.nesterov,
         momentum=0.9,
-        weight_decay=args.wd,
+        weight_decay=params.wd,
     )
 
     # set scheduler
-    if args.scheduler_type == "step":
+    if params.scheduler_type == "step":
         scheduler = torch.optim.lr_scheduler.MultiStepLR(
-            optimizer, args.decay_epochs, gamma=args.gamma
+            optimizer, params.decay_epochs, gamma=params.gamma
         )
-    elif args.scheduler_type == "cosine":
+    elif params.scheduler_type == "cosine":
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
-            optimizer, args.epochs, eta_min=args.final_lr
+            optimizer, params.epochs, eta_min=params.final_lr
         )
 
     # Optionally resume from a checkpoint
     to_restore = {"epoch": 0, "best_acc": 0.}
     restart_from_checkpoint(
-        os.path.join(args.dump_path, "checkpoint.pth.tar"),
+        os.path.join(params.dump_path, "checkpoint.pth.tar"),
         run_variables=to_restore,
         state_dict=linear_classifier,
         optimizer=optimizer,
@@ -201,7 +201,7 @@ def main():
     best_acc = to_restore["best_acc"]
     cudnn.benchmark = True
 
-    for epoch in range(start_epoch, args.epochs):
+    for epoch in range(start_epoch, params.epochs):
 
         # train the network for one epoch
         logger.info("============ Starting epoch %i ... ============" % epoch)
@@ -216,7 +216,7 @@ def main():
         scheduler.step()
 
         # save checkpoint
-        if args.rank == 0:
+        if params.rank == 0:
             save_dict = {
                 "epoch": epoch + 1,
                 "state_dict": linear_classifier.state_dict(),
@@ -224,7 +224,7 @@ def main():
                 "scheduler": scheduler.state_dict(),
                 "best_acc": best_acc,
             }
-            torch.save(save_dict, os.path.join(args.dump_path, "checkpoint.pth.tar"))
+            torch.save(save_dict, os.path.join(params.dump_path, "checkpoint.pth.tar"))
     logger.info("Training of the supervised linear classifier on frozen features completed.\n"
                 "Top-1 test accuracy: {acc:.1f}".format(acc=best_acc))
 
@@ -322,7 +322,7 @@ def train(model, reglog, optimizer, loader, epoch):
         end = time.perf_counter()
 
         # verbose
-        if args.rank == 0 and iter_epoch % 50 == 0:
+        if params.rank == 0 and iter_epoch % 50 == 0:
             logger.info(
                 "Epoch[{0}] - Iter: [{1}/{2}]\t"
                 "Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t"
@@ -382,7 +382,7 @@ def validate_network(val_loader, model, linear_classifier):
     if top1.avg.item() > best_acc:
         best_acc = top1.avg.item()
 
-    if args.rank == 0:
+    if params.rank == 0:
         logger.info(
             "Test:\t"
             "Time {batch_time.avg:.3f}\t"

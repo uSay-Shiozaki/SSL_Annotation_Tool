@@ -83,29 +83,29 @@ parser.add_argument("--local_rank", default=0, type=int,
 
 
 def main():
-    global args, best_acc
-    args = parser.parse_args()
-    init_distributed_mode(args)
-    fix_random_seeds(args.seed)
+    global params, best_acc
+    params = parser.parse_args()
+    init_distributed_mode(params)
+    fix_random_seeds(params.seed)
     
     logger, training_stats = initialize_exp(
-        args, "epoch", "loss", "prec1", "prec5", "loss_val", "prec1_val", "prec5_val"
+        params, "epoch", "loss", "prec1", "prec5", "loss_val", "prec1_val", "prec5_val"
     )
-    # logger, training_stats = initialize_exp(args,"epoch", "loss")
+    # logger, training_stats = initialize_exp(params,"epoch", "loss")
     # build data
-    train_data_path = os.path.join(args.data_path, "train")
+    train_data_path = os.path.join(params.data_path, "train")
     train_dataset = datasets.ImageFolder(train_data_path)
     # take either 1% or 10% of images
     # doesn't work
     '''
-    subset_file = urllib.request.urlopen("https://raw.githubusercontent.com/google-research/simclr/master/imagenet_subsets/" + str(args.labels_perc) + "percent.txt")
+    subset_file = urllib.request.urlopen("https://raw.githubusercontent.com/google-research/simclr/master/imagenet_subsets/" + str(params.labels_perc) + "percent.txt")
     list_imgs = [li.decode("utf-8").split('\n')[0] for li in subset_file]
     train_dataset.samples = [(
         os.path.join(train_data_path, li.split('_')[0], li),
         train_dataset.class_to_idx[li.split('_')[0]]
     ) for li in list_imgs]'''
 
-    val_dataset = datasets.ImageFolder(os.path.join(args.data_path, "validation0.01"))
+    val_dataset = datasets.ImageFolder(os.path.join(params.data_path, "validation0.01"))
     tr_normalize = transforms.Normalize(
         mean=[0.485, 0.456, 0.406], std=[0.228, 0.224, 0.225]
     )
@@ -125,27 +125,27 @@ def main():
     train_loader = torch.utils.data.DataLoader(
         train_dataset,
         sampler=sampler,
-        batch_size=args.batch_size,
-        num_workers=args.workers,
+        batch_size=params.batch_size,
+        num_workers=params.workers,
         pin_memory=True,
     )
     val_loader = torch.utils.data.DataLoader(
         val_dataset,
-        batch_size=args.batch_size,
-        num_workers=args.workers,
+        batch_size=params.batch_size,
+        num_workers=params.workers,
         pin_memory=True,
     )
     logger.info("Building data done with {} images loaded.".format(len(train_dataset)))
     from torchinfo import summary
     # build model
-    model = resnet_models.__dict__[args.arch](output_dim=1000)
+    model = resnet_models.__dict__[params.arch](output_dim=1000)
     summary(model=model, input_size=(1,3,32,32))
     # convert batch norm layers
     model = nn.SyncBatchNorm.convert_sync_batchnorm(model)
 
     # load weights
-    if os.path.isfile(args.pretrained):
-        state_dict = torch.load(args.pretrained, map_location="cuda:" + str(args.gpu_to_work_on))
+    if os.path.isfile(params.pretrained):
+        state_dict = torch.load(params.pretrained, map_location="cuda:" + str(params.gpu_to_work_on))
         if "state_dict" in state_dict:
             state_dict = state_dict["state_dict"]
         # remove prefixe "module."
@@ -165,7 +165,7 @@ def main():
     model = model.cuda()
     model = nn.parallel.DistributedDataParallel(
         model,
-        device_ids=[args.gpu_to_work_on],
+        device_ids=[params.gpu_to_work_on],
         find_unused_parameters=True,
     )
 
@@ -179,20 +179,20 @@ def main():
             trunk_parameters.append(param)
     optimizer = torch.optim.SGD(
         [{'params': trunk_parameters},
-         {'params': head_parameters, 'lr': args.lr_last_layer}],
-        lr=args.lr,
+         {'params': head_parameters, 'lr': params.lr_last_layer}],
+        lr=params.lr,
         momentum=0.9,
         weight_decay=0,
     )
     # set scheduler
     scheduler = torch.optim.lr_scheduler.MultiStepLR(
-        optimizer, args.decay_epochs, gamma=args.gamma
+        optimizer, params.decay_epochs, gamma=params.gamma
     )
 
     # Optionally resume from a checkpoint
     to_restore = {"epoch": 0, "best_acc": (0., 0.)}
     restart_from_checkpoint(
-        os.path.join(args.dump_path, "checkpoint.pth.tar"),
+        os.path.join(params.dump_path, "checkpoint.pth.tar"),
         run_variables=to_restore,
         state_dict=model,
         optimizer=optimizer,
@@ -202,7 +202,7 @@ def main():
     best_acc = to_restore["best_acc"]
     cudnn.benchmark = True
 
-    for epoch in range(start_epoch, args.epochs):
+    for epoch in range(start_epoch, params.epochs):
 
         # train the network for one epoch
         logger.info("============ Starting epoch %i ... ============" % epoch)
@@ -217,7 +217,7 @@ def main():
         scheduler.step()
 
         # save checkpoint
-        if args.rank == 0:
+        if params.rank == 0:
             save_dict = {
                 "epoch": epoch + 1,
                 "state_dict": model.state_dict(),
@@ -225,10 +225,10 @@ def main():
                 "scheduler": scheduler.state_dict(),
                 "best_acc": best_acc,
             }
-            torch.save(save_dict, os.path.join(args.dump_path, "checkpoint.pth.tar"))
+            torch.save(save_dict, os.path.join(params.dump_path, "checkpoint.pth.tar"))
     logger.info("Fine-tuning with {}% of labels completed.\n"
                 "Test accuracies: top-1 {acc1:.1f}, top-5 {acc5:.1f}".format(
-                args.labels_perc, acc1=best_acc[0], acc5=best_acc[1]))
+                params.labels_perc, acc1=best_acc[0], acc5=best_acc[1]))
 
 
 def train(model, optimizer, loader, epoch):
@@ -279,7 +279,7 @@ def train(model, optimizer, loader, epoch):
         end = time.perf_counter()
 
         # verbose
-        if args.rank == 0 and iter_epoch % 50 == 0:
+        if params.rank == 0 and iter_epoch % 50 == 0:
             logger.info(
                 "Epoch[{0}] - Iter: [{1}/{2}]\t"
                 "Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t"
@@ -338,7 +338,7 @@ def validate_network(val_loader, model):
     if top1.avg.item() > best_acc[0]:
         best_acc = (top1.avg.item(), top5.avg.item())
 
-    if args.rank == 0:
+    if params.rank == 0:
         logger.info(
             "Test:\t"
             "Time {batch_time.avg:.3f}\t"

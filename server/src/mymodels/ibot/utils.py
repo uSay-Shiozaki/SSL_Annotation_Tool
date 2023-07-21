@@ -469,9 +469,9 @@ def is_main_process():
     return get_rank() == 0
 
 
-def save_on_master(*args, **kwargs):
+def save_on_master(*params, **kwargs):
     if is_main_process():
-        torch.save(*args, **kwargs)
+        torch.save(*params, **kwargs)
 
 
 def setup_for_distributed(is_master):
@@ -481,29 +481,29 @@ def setup_for_distributed(is_master):
     import builtins as __builtin__
     builtin_print = __builtin__.print
 
-    def print(*args, **kwargs):
+    def print(*params, **kwargs):
         force = kwargs.pop('force', False)
         if is_master or force:
-            builtin_print(*args, **kwargs)
+            builtin_print(*params, **kwargs)
 
     __builtin__.print = print
 
 
-def init_distributed_mode(args):
+def init_distributed_mode(params):
     # launched with torch.distributed.launch
     if 'RANK' in os.environ and 'WORLD_SIZE' in os.environ:
-        args.rank = int(os.environ["RANK"])
-        args.world_size = int(os.environ['WORLD_SIZE'])
-        args.gpu = int(os.environ['LOCAL_RANK'])
+        params.rank = int(os.environ["RANK"])
+        params.world_size = int(os.environ['WORLD_SIZE'])
+        params.gpu = int(os.environ['LOCAL_RANK'])
     # launched with submitit on a slurm cluster
     elif 'SLURM_PROCID' in os.environ:
-        args.rank = int(os.environ['SLURM_PROCID'])
-        args.gpu = args.rank % torch.cuda.device_count()
+        params.rank = int(os.environ['SLURM_PROCID'])
+        params.gpu = params.rank % torch.cuda.device_count()
     # launched naively with `python main_dino.py`
     # we manually add MASTER_ADDR and MASTER_PORT to env variables
     elif torch.cuda.is_available():
         print('Will run the code on one GPU.')
-        args.rank, args.gpu, args.world_size = 0, 0, 1
+        params.rank, params.gpu, params.world_size = 0, 0, 1
         os.environ['MASTER_ADDR'] = '127.0.0.1'
         os.environ['MASTER_PORT'] = '29500'
     else:
@@ -512,16 +512,16 @@ def init_distributed_mode(args):
 
     dist.init_process_group(
         backend="nccl",
-        init_method=args.dist_url,
-        world_size=args.world_size,
-        rank=args.rank,
+        init_method=params.dist_url,
+        world_size=params.world_size,
+        rank=params.rank,
     )
 
-    torch.cuda.set_device(args.gpu)
+    torch.cuda.set_device(params.gpu)
     print('| distributed init (rank {}): {}'.format(
-        args.rank, args.dist_url), flush=True)
+        params.rank, params.dist_url), flush=True)
     dist.barrier()
-    setup_for_distributed(args.rank == 0)
+    setup_for_distributed(params.rank == 0)
 
 
 def accuracy(output, target, topk=(1,)):
@@ -615,19 +615,19 @@ class LARS(torch.optim.Optimizer):
 
                 p.add_(mu, alpha=-g['lr'])
 
-def create_ds_config(args):
-    args.deepspeed_config = os.path.join(args.output_dir, "deepspeed_config.json")
-    with open(args.deepspeed_config, mode="w") as writer:
+def create_ds_config(params):
+    params.deepspeed_config = os.path.join(params.output_dir, "deepspeed_config.json")
+    with open(params.deepspeed_config, mode="w") as writer:
         ds_config = {
-            "train_batch_size": args.batch_size * get_world_size(),
-            "train_micro_batch_size_per_gpu": args.batch_size,
+            "train_batch_size": params.batch_size * get_world_size(),
+            "train_micro_batch_size_per_gpu": params.batch_size,
             "steps_per_print": 1000,
             "optimizer": {
                 "type": "Adam",
                 "adam_w_mode": True,
                 "params": {
-                    "lr": args.lr,
-                    "weight_decay": args.weight_decay,
+                    "lr": params.lr,
+                    "weight_decay": params.weight_decay,
                     "bias_correction": True,
                     "betas": [
                         0.9,

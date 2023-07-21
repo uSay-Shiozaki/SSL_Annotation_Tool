@@ -12,10 +12,10 @@ from mymodels.ibot.utils import trunc_normal_
 
 class CSyncBatchNorm(nn.SyncBatchNorm):
     def __init__(self,
-                 *args,
+                 *params,
                  with_var=False,
                  **kwargs):
-        super(CSyncBatchNorm, self).__init__(*args, **kwargs)
+        super(CSyncBatchNorm, self).__init__(*params, **kwargs)
         self.with_var = with_var
 
     def forward(self, x):
@@ -31,7 +31,7 @@ class CSyncBatchNorm(nn.SyncBatchNorm):
 
 class PSyncBatchNorm(nn.SyncBatchNorm):
     def __init__(self,
-                 *args,
+                 *params,
                  bunch_size,
                  **kwargs):
         procs_per_bunch = min(bunch_size, utils.get_world_size())
@@ -46,7 +46,7 @@ class PSyncBatchNorm(nn.SyncBatchNorm):
         bunch_id = utils.get_rank() // procs_per_bunch
         process_group = process_groups[bunch_id]
         print('---CURRENT GROUP----\n{}'.format(process_group))
-        super(PSyncBatchNorm, self).__init__(*args, process_group=process_group, **kwargs)
+        super(PSyncBatchNorm, self).__init__(*params, process_group=process_group, **kwargs)
 
 class CustomSequential(nn.Sequential):
     bn_types = (nn.BatchNorm1d, nn.BatchNorm2d, nn.BatchNorm3d, nn.SyncBatchNorm)
@@ -144,11 +144,11 @@ class DINOHead(nn.Module):
 
 class iBOTHead(DINOHead):
 
-    def __init__(self, *args, patch_out_dim=8192, norm=None, act='gelu', last_norm=None, 
+    def __init__(self, *params, patch_out_dim=8192, norm=None, act='gelu', last_norm=None, 
                  nlayers=3, hidden_dim=2048, bottleneck_dim=256, norm_last_layer=True, 
                  shared_head=False, **kwargs):
         
-        super(iBOTHead, self).__init__(*args,
+        super(iBOTHead, self).__init__(*params,
                                         norm=norm,
                                         act=act,
                                         last_norm=last_norm,

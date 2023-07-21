@@ -16,9 +16,9 @@ class ImageFolderInstance(ImageFolder):
         return img, target, index
 
 class ImageFolderMask(ImageFolder):
-    def __init__(self, *args, patch_size, pred_ratio, pred_ratio_var, pred_aspect_ratio, 
+    def __init__(self, *params, patch_size, pred_ratio, pred_ratio_var, pred_aspect_ratio, 
                  pred_shape='block', pred_start_epoch=0, **kwargs):
-        super(ImageFolderMask, self).__init__(*args, **kwargs)
+        super(ImageFolderMask, self).__init__(*params, **kwargs)
         self.psz = patch_size
         self.pred_ratio = pred_ratio[0] if isinstance(pred_ratio, list) and \
             len(pred_ratio) == 1 else pred_ratio
