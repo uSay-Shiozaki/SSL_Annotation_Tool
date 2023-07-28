@@ -36,41 +36,41 @@ def bool_flag(s):
         raise argparse.ArgumentTypeError("invalid value for a boolean flag")
 
 
-def init_distributed_mode(args):
+def init_distributed_mode(params):
     """
     Initialize the following variables:
         - world_size
         - rank
     """
 
-    args.is_slurm_job = "SLURM_JOB_ID" in os.environ
+    params.is_slurm_job = "SLURM_JOB_ID" in os.environ
 
-    if args.is_slurm_job:
-        args.rank = int(os.environ["SLURM_PROCID"])
-        args.world_size = int(os.environ["SLURM_NNODES"]) * int(
+    if params.is_slurm_job:
+        params.rank = int(os.environ["SLURM_PROCID"])
+        params.world_size = int(os.environ["SLURM_NNODES"]) * int(
             os.environ["SLURM_TASKS_PER_NODE"][0]
         )
     else:
         # multi-GPU job (local or multi-node) - jobs started with torch.distributed.launch
         # read environment variables
-        args.rank = int(os.environ["RANK"])
-        args.world_size = int(os.environ["WORLD_SIZE"])
+        params.rank = int(os.environ["RANK"])
+        params.world_size = int(os.environ["WORLD_SIZE"])
 
     # prepare distributed
     dist.init_process_group(
         backend="nccl",
-        init_method=args.dist_url,
-        world_size=args.world_size,
-        rank=args.rank,
+        init_method=params.dist_url,
+        world_size=params.world_size,
+        rank=params.rank,
     )
 
     # set cuda device
-    args.gpu_to_work_on = args.rank % torch.cuda.device_count()
-    torch.cuda.set_device(args.gpu_to_work_on)
+    params.gpu_to_work_on = params.rank % torch.cuda.device_count()
+    torch.cuda.set_device(params.gpu_to_work_on)
     return
 
 
-def initialize_exp(params, *args, dump_params=True):
+def initialize_exp(params, *params, dump_params=True):
     """
     Initialize the experience:
     - dump parameters
@@ -91,7 +91,7 @@ def initialize_exp(params, *args, dump_params=True):
 
     # create a panda object to log loss and acc
     training_stats = PD_Stats(
-        os.path.join(params.dump_path, "stats" + str(params.rank) + ".pkl"), args
+        os.path.join(params.dump_path, "stats" + str(params.rank) + ".pkl"), params
     )
 
     # create a logger

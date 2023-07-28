@@ -94,7 +94,7 @@ def clustering(model, dataLoader, nClusters=10):
 
 
 @torch.no_grad()
-def main(args):
+def main(params):
   # This flag allows you to enable the inbuilt cudnn auto-tuner 
   # to find the best algorithm to use for your hardware if
   # input sizes are constant.
@@ -153,7 +153,7 @@ def main(args):
 
   model  = torch.nn.parallel.DistributedDataParallel(model, device_ids=LOCAL_RANK)
   # add chieckpoint_key as a kwarg. 
-  # ** before dict means unpaccking to send args.
+  # ** before dict means unpaccking to send params.
   utils.restart_from_checkpoint(PRETRAINED_WEIGHTS, **{CHECKPOINT_KEY: model})
   model.eval()
   

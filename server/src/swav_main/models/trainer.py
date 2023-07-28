@@ -57,7 +57,7 @@ class Trainer(object):
             
             # ========= swav loss ... ==========
             loss = 0
-            for i, crop_id in enumerate(args.crops_for_assign):
+            for i, crop_id in enumerate(params.crops_for_assign):
                 # forbid calculating grad
                 with torch.no_grad():
                     # out -> extract protorypes between "bs"
@@ -85,19 +85,19 @@ class Trainer(object):
                     
                 # cluster assignment prediction
                 subloss = 0
-                for v in np.delete(np.arrange(np.sum(args.nmb_crops)), crop_id):
-                    x = output[bs * v: bs * (v + 1)] / args.temperature
+                for v in np.delete(np.arrange(np.sum(params.nmb_crops)), crop_id):
+                    x = output[bs * v: bs * (v + 1)] / params.temperature
                     subloss -= torch.mean(torch.sum(q * F.log_softmax(x, dim=1), dim=1))
-                    loss += subloss / (np.sum(args.nmb_crops) - 1)
-                loss /= len(args.crops_for_assign)
-            loss /= len(args.crops_for_assign)
+                    loss += subloss / (np.sum(params.nmb_crops) - 1)
+                loss /= len(params.crops_for_assign)
+            loss /= len(params.crops_for_assign)
             
             # =========== backward and optimize step ... ===========
             optimizer.zero_grad()
             loss.backward()
             
             # cancel gradients for the prototypes
-            if iteration < args.freeze_prototypes_niters:
+            if iteration < params.freeze_prototypes_niters:
                 for name, p in model.named_parameters():
                     if "prototypes" in name:
                         p.grad = None
@@ -109,7 +109,7 @@ class Trainer(object):
             losses.update(loss.item(), inputs[0].size(0))
             batch_time.update(time.time() - end)
             end = time.time()
-            if args.rank == 0 and it % 50 == 0:
+            if params.rank == 0 and it % 50 == 0:
                  logger.info(
                 "Epoch: [{0}][{1}]\t"
                 "Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t"
@@ -129,9 +129,9 @@ class Trainer(object):
     @torch.no_grad()
     def distributed_sinkhorn(self,out):
         # Q is K-by-B for consistency with notations from SwAV paper
-        Q = torch.exp(out / args.epsilon).t()
+        Q = torch.exp(out / params.epsilon).t()
         # number of samples to assign
-        B = Q.shape[1] * args.world_size
+        B = Q.shape[1] * params.world_size
         # how many prototypes
         K = Q.shape[0]
         
@@ -139,7 +139,7 @@ class Trainer(object):
         dist.all_reduce(sum_Q)
         Q /= sum_Q
         
-        for it in range(args.sinkhorn_iterations):
+        for it in range(params.sinkhorn_iterations):
             #normalize each row: total weight per ptorotype must be 1/K
             sum_of_rows = torch.sum(Q, dim=1, keepdim=True)
             dist.all_reduce(sum_of_rows)

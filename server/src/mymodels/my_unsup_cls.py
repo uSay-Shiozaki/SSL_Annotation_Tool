@@ -109,12 +109,12 @@ def main_eval(arch="vit_small",
         pth_transforms.ToTensor(),
         pth_transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
     ])
-    # valdir = os.path.join(args.data_path, "val")
+    # valdir = os.path.join(params.data_path, "val")
     valdir = os.path.join(data_path, "val")
     dataset_val = ImageFolder(valdir, transform=transform)
     data_loader_val = torch.utils.data.DataLoader(
         dataset_val,
-        batch_size=1, # for get data path in my function, default: args.batch_size_per_gpu
+        batch_size=1, # for get data path in my function, default: params.batch_size_per_gpu
         num_workers=num_workers,
         pin_memory=True,
         drop_last=False,
@@ -258,7 +258,7 @@ def eval_atCluster(model, jsonFile, target_cluster: str="3", n_clusters=3):
     data_loader = torch.utils.data.DataLoader(
         dataset,
         batch_size=1, # labelEncoder needs whole label list
-        num_workers=args.num_workers,
+        num_workers=params.num_workers,
         pin_memory=True,
         drop_last=False,
     )
@@ -341,7 +341,7 @@ def init_distributed_mode(dist_url=None):
     # launched with submitit on a slurm cluster
     elif 'SLURM_PROCID' in os.environ:
         rank = int(os.environ['SLURM_PROCID'])
-        gpu = args.rank % torch.cuda.device_count()
+        gpu = params.rank % torch.cuda.device_count()
     # launched naively with `python main_dino.py`
     # we manually add MASTER_ADDR and MASTER_PORT to env variables
     elif torch.cuda.is_available():

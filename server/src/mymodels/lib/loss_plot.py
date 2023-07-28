@@ -16,8 +16,8 @@ liveloss.send()
 
 '''
 # load weights
-if os.path.isfile(args.pretrained):
-    state_dict = torch.load(args.pretrained, map_location="cuda:" + str(args.gpu_to_work_on))
+if os.path.isfile(params.pretrained):
+    state_dict = torch.load(params.pretrained, map_location="cuda:" + str(params.gpu_to_work_on))
     
     if "state_dict" in state_dict:
         state_dict = state_dict["state_dict"]

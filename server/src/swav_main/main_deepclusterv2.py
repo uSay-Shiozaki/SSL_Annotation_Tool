@@ -112,79 +112,79 @@ parser.add_argument("--seed", type=int, default=31, help="seed")
 
 
 def main():
-    global args
-    args = parser.parse_args()
-    init_distributed_mode(args)
-    fix_random_seeds(args.seed)
-    logger, training_stats = initialize_exp(args, "epoch", "loss")
+    global params
+    params = parser.parse_args()
+    init_distributed_mode(params)
+    fix_random_seeds(params.seed)
+    logger, training_stats = initialize_exp(params, "epoch", "loss")
 
     # build data
     train_dataset = MultiCropDataset(
-        args.data_path,
-        args.size_crops,
-        args.nmb_crops,
-        args.min_scale_crops,
-        args.max_scale_crops,
+        params.data_path,
+        params.size_crops,
+        params.nmb_crops,
+        params.min_scale_crops,
+        params.max_scale_crops,
         return_index=True,
     )
     sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
     train_loader = torch.utils.data.DataLoader(
         train_dataset,
         sampler=sampler,
-        batch_size=args.batch_size,
-        num_workers=args.workers,
+        batch_size=params.batch_size,
+        num_workers=params.workers,
         pin_memory=True,
         drop_last=True
     )
     logger.info("Building data done with {} images loaded.".format(len(train_dataset)))
 
     # build model
-    model = resnet_models.__dict__[args.arch](
+    model = resnet_models.__dict__[params.arch](
         normalize=True,
-        hidden_mlp=args.hidden_mlp,
-        output_dim=args.feat_dim,
-        nmb_prototypes=args.nmb_prototypes,
+        hidden_mlp=params.hidden_mlp,
+        output_dim=params.feat_dim,
+        nmb_prototypes=params.nmb_prototypes,
     )
     # synchronize batch norm layers
-    if args.sync_bn == "pytorch":
+    if params.sync_bn == "pytorch":
         model = nn.SyncBatchNorm.convert_sync_batchnorm(model)
-    elif args.sync_bn == "apex":
+    elif params.sync_bn == "apex":
         # with apex syncbn we sync bn per group because it speeds up computation
         # compared to global syncbn
-        process_group = apex.parallel.create_syncbn_process_group(args.syncbn_process_group_size)
+        process_group = apex.parallel.create_syncbn_process_group(params.syncbn_process_group_size)
         model = apex.parallel.convert_syncbn_model(model, process_group=process_group)
     # copy model to GPU
     model = model.cuda()
-    if args.rank == 0:
+    if params.rank == 0:
         logger.info(model)
     logger.info("Building model done.")
 
     # build optimizer
     optimizer = torch.optim.SGD(
         model.parameters(),
-        lr=args.base_lr,
+        lr=params.base_lr,
         momentum=0.9,
-        weight_decay=args.wd,
+        weight_decay=params.wd,
     )
     optimizer = LARC(optimizer=optimizer, trust_coefficient=0.001, clip=False)
-    warmup_lr_schedule = np.linspace(args.start_warmup, args.base_lr, len(train_loader) * args.warmup_epochs)
-    iters = np.arange(len(train_loader) * (args.epochs - args.warmup_epochs))
-    cosine_lr_schedule = np.array([args.final_lr + 0.5 * (args.base_lr - args.final_lr) * (1 + \
-                         math.cos(math.pi * t / (len(train_loader) * (args.epochs - args.warmup_epochs)))) for t in iters])
+    warmup_lr_schedule = np.linspace(params.start_warmup, params.base_lr, len(train_loader) * params.warmup_epochs)
+    iters = np.arange(len(train_loader) * (params.epochs - params.warmup_epochs))
+    cosine_lr_schedule = np.array([params.final_lr + 0.5 * (params.base_lr - params.final_lr) * (1 + \
+                         math.cos(math.pi * t / (len(train_loader) * (params.epochs - params.warmup_epochs)))) for t in iters])
     lr_schedule = np.concatenate((warmup_lr_schedule, cosine_lr_schedule))
     logger.info("Building optimizer done.")
 
     # wrap model
     model = nn.parallel.DistributedDataParallel(
         model,
-        device_ids=[args.gpu_to_work_on],
+        device_ids=[params.gpu_to_work_on],
         find_unused_parameters=True,
     )
 
     # optionally resume from a checkpoint
     to_restore = {"epoch": 0}
     restart_from_checkpoint(
-        os.path.join(args.dump_path, "checkpoint.pth.tar"),
+        os.path.join(params.dump_path, "checkpoint.pth.tar"),
         run_variables=to_restore,
         state_dict=model,
         optimizer=optimizer,
@@ -192,7 +192,7 @@ def main():
     start_epoch = to_restore["epoch"]
 
     # build the memory bank
-    mb_path = os.path.join(args.dump_path, "mb" + str(args.rank) + ".pth")
+    mb_path = os.path.join(params.dump_path, "mb" + str(params.rank) + ".pth")
     if os.path.isfile(mb_path):
         mb_ckp = torch.load(mb_path)
         local_memory_index = mb_ckp["local_memory_index"]
@@ -201,7 +201,7 @@ def main():
         local_memory_index, local_memory_embeddings = init_memory(train_loader, model)
 
     cudnn.benchmark = True
-    for epoch in range(start_epoch, args.epochs):
+    for epoch in range(start_epoch, params.epochs):
 
         # train the network for one epoch
         logger.info("============ Starting epoch %i ... ============" % epoch)
@@ -222,7 +222,7 @@ def main():
         training_stats.update(scores)
 
         # save checkpoints
-        if args.rank == 0:
+        if params.rank == 0:
             save_dict = {
                 "epoch": epoch + 1,
                 "state_dict": model.state_dict(),
@@ -230,12 +230,12 @@ def main():
             }
             torch.save(
                 save_dict,
-                os.path.join(args.dump_path, "checkpoint.pth.tar"),
+                os.path.join(params.dump_path, "checkpoint.pth.tar"),
             )
-            if epoch % args.checkpoint_freq == 0 or epoch == args.epochs - 1:
+            if epoch % params.checkpoint_freq == 0 or epoch == params.epochs - 1:
                 shutil.copyfile(
-                    os.path.join(args.dump_path, "checkpoint.pth.tar"),
-                    os.path.join(args.dump_checkpoints, "ckp-" + str(epoch) + ".pth"),
+                    os.path.join(params.dump_path, "checkpoint.pth.tar"),
+                    os.path.join(params.dump_checkpoints, "ckp-" + str(epoch) + ".pth"),
                 )
         torch.save({"local_memory_embeddings": local_memory_embeddings,
                     "local_memory_index": local_memory_index}, mb_path)
@@ -269,17 +269,17 @@ def train(loader, model, optimizer, epoch, schedule, local_memory_index, local_m
 
         # ============ deepcluster-v2 loss ... ============
         loss = 0
-        for h in range(len(args.nmb_prototypes)):
-            scores = output[h] / args.temperature
-            targets = assignments[h][idx].repeat(sum(args.nmb_crops)).cuda(non_blocking=True)
+        for h in range(len(params.nmb_prototypes)):
+            scores = output[h] / params.temperature
+            targets = assignments[h][idx].repeat(sum(params.nmb_crops)).cuda(non_blocking=True)
             loss += cross_entropy(scores, targets)
-        loss /= len(args.nmb_prototypes)
+        loss /= len(params.nmb_prototypes)
 
         # ============ backward and optim step ... ============
         optimizer.zero_grad()
         loss.backward()
         # cancel some gradients
-        if iteration < args.freeze_prototypes_niters:
+        if iteration < params.freeze_prototypes_niters:
             for name, p in model.named_parameters():
                 if "prototypes" in name:
                     p.grad = None
@@ -287,7 +287,7 @@ def train(loader, model, optimizer, epoch, schedule, local_memory_index, local_m
 
         # ============ update memory banks ... ============
         local_memory_index[start_idx : start_idx + bs] = idx
-        for i, crop_idx in enumerate(args.crops_for_assign):
+        for i, crop_idx in enumerate(params.crops_for_assign):
             local_memory_embeddings[i][start_idx : start_idx + bs] = \
                 emb[crop_idx * bs : (crop_idx + 1) * bs]
         start_idx += bs
@@ -296,7 +296,7 @@ def train(loader, model, optimizer, epoch, schedule, local_memory_index, local_m
         losses.update(loss.item(), inputs[0].size(0))
         batch_time.update(time.time() - end)
         end = time.time()
-        if args.rank ==0 and it % 50 == 0:
+        if params.rank ==0 and it % 50 == 0:
             logger.info(
                 "Epoch: [{0}][{1}]\t"
                 "Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t"
@@ -315,9 +315,9 @@ def train(loader, model, optimizer, epoch, schedule, local_memory_index, local_m
 
 
 def init_memory(dataloader, model):
-    size_memory_per_process = len(dataloader) * args.batch_size
+    size_memory_per_process = len(dataloader) * params.batch_size
     local_memory_index = torch.zeros(size_memory_per_process).long().cuda()
-    local_memory_embeddings = torch.zeros(len(args.crops_for_assign), size_memory_per_process, args.feat_dim).cuda()
+    local_memory_embeddings = torch.zeros(len(params.crops_for_assign), size_memory_per_process, params.feat_dim).cuda()
     start_idx = 0
     with torch.no_grad():
         logger.info('Start initializing the memory banks')
@@ -327,7 +327,7 @@ def init_memory(dataloader, model):
 
             # get embeddings
             outputs = []
-            for crop_idx in args.crops_for_assign:
+            for crop_idx in params.crops_for_assign:
                 inp = inputs[crop_idx].cuda(non_blocking=True)
                 outputs.append(model(inp)[0])
 
@@ -344,14 +344,14 @@ def init_memory(dataloader, model):
 
 def cluster_memory(model, local_memory_index, local_memory_embeddings, size_dataset, nmb_kmeans_iters=10):
     j = 0
-    assignments = -100 * torch.ones(len(args.nmb_prototypes), size_dataset).long()
+    assignments = -100 * torch.ones(len(params.nmb_prototypes), size_dataset).long()
     with torch.no_grad():
-        for i_K, K in enumerate(args.nmb_prototypes):
+        for i_K, K in enumerate(params.nmb_prototypes):
             # run distributed k-means
 
             # init centroids with elements from memory bank of rank 0
-            centroids = torch.empty(K, args.feat_dim).cuda(non_blocking=True)
-            if args.rank == 0:
+            centroids = torch.empty(K, params.feat_dim).cuda(non_blocking=True)
+            if params.rank == 0:
                 random_idx = torch.randperm(len(local_memory_embeddings[j]))[:K]
                 assert len(random_idx) >= K, "please reduce the number of centroids"
                 centroids = local_memory_embeddings[j][random_idx]
@@ -370,7 +370,7 @@ def cluster_memory(model, local_memory_index, local_memory_embeddings, size_data
                 # M step
                 where_helper = get_indices_sparse(local_assignments.cpu().numpy())
                 counts = torch.zeros(K).cuda(non_blocking=True).int()
-                emb_sums = torch.zeros(K, args.feat_dim).cuda(non_blocking=True)
+                emb_sums = torch.zeros(K, params.feat_dim).cuda(non_blocking=True)
                 for k in range(len(where_helper)):
                     if len(where_helper[k][0]) > 0:
                         emb_sums[k] = torch.sum(
@@ -389,7 +389,7 @@ def cluster_memory(model, local_memory_index, local_memory_embeddings, size_data
             getattr(model.module.prototypes, "prototypes" + str(i_K)).weight.copy_(centroids)
 
             # gather the assignments
-            assignments_all = torch.empty(args.world_size, local_assignments.size(0),
+            assignments_all = torch.empty(params.world_size, local_assignments.size(0),
                                           dtype=local_assignments.dtype, device=local_assignments.device)
             assignments_all = list(assignments_all.unbind(0))
             dist_process = dist.all_gather(assignments_all, local_assignments, async_op=True)
@@ -397,7 +397,7 @@ def cluster_memory(model, local_memory_index, local_memory_embeddings, size_data
             assignments_all = torch.cat(assignments_all).cpu()
 
             # gather the indexes
-            indexes_all = torch.empty(args.world_size, local_memory_index.size(0),
+            indexes_all = torch.empty(params.world_size, local_memory_index.size(0),
                                       dtype=local_memory_index.dtype, device=local_memory_index.device)
             indexes_all = list(indexes_all.unbind(0))
             dist_process = dist.all_gather(indexes_all, local_memory_index, async_op=True)
@@ -408,7 +408,7 @@ def cluster_memory(model, local_memory_index, local_memory_embeddings, size_data
             assignments[i_K][indexes_all] = assignments_all
 
             # next memory bank to use
-            j = (j + 1) % len(args.crops_for_assign)
+            j = (j + 1) % len(params.crops_for_assign)
 
     return assignments
 

@@ -17,7 +17,7 @@ logger = getLogger()
 
 STEPS = 1000
 def show_images(map, loader):
-    #imgFolderPath = os.path.join(args.data_path, foldername)
+    #imgFolderPath = os.path.join(params.data_path, foldername)
     # show images in each cluster
     loader_list = []
     for i, (input, _) in enumerate(loader):

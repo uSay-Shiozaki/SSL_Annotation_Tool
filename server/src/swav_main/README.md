@@ -24,7 +24,7 @@ model = torch.hub.load('facebookresearch/swav:main', 'resnet50')
 We provide several baseline SwAV pre-trained models with ResNet-50 architecture in torchvision format.
 We also provide models pre-trained with [DeepCluster-v2](./main_deepclusterv2.py) and SeLa-v2 obtained by applying improvements from the self-supervised community to [DeepCluster](https://arxiv.org/abs/1807.05520) and [SeLa](https://arxiv.org/abs/1911.05371) (see details in the [appendix of our paper](https://arxiv.org/abs/2006.09882)).
 
-| method | epochs | batch-size | multi-crop | ImageNet top-1 acc. | url | args |
+| method | epochs | batch-size | multi-crop | ImageNet top-1 acc. | url | params |
 |-------------------|-------------------|---------------------|--------------------|--------------------|--------------------|--------------------|
 | SwAV | 800 | 4096 | 2x224 + 6x96 | 75.3 | [model](https://dl.fbaipublicfiles.com/deepcluster/swav_800ep_pretrain.pth.tar) | [script](./scripts/swav_800ep_pretrain.sh) |
 | SwAV | 400 | 4096 | 2x224 + 6x96 | 74.6 | [model](https://dl.fbaipublicfiles.com/deepcluster/swav_400ep_pretrain.pth.tar) | [script](./scripts/swav_400ep_pretrain.sh) |
@@ -49,7 +49,7 @@ rn50w4 = torch.hub.load('facebookresearch/swav:main', 'resnet50w4')
 rn50w5 = torch.hub.load('facebookresearch/swav:main', 'resnet50w5')
 ```
 
-| network | parameters | epochs | ImageNet top-1 acc. | url | args |
+| network | parameters | epochs | ImageNet top-1 acc. | url | params |
 |-------------------|---------------------|--------------------|--------------------|--------------------|--------------------|
 | RN50-w2 | 94M | 400 | 77.3 | [model](https://dl.fbaipublicfiles.com/deepcluster/swav_RN50w2_400ep_pretrain.pth.tar) | [script](./scripts/swav_RN50w2_400ep_pretrain.sh) |
 | RN50-w4 | 375M | 400 | 77.9 | [model](https://dl.fbaipublicfiles.com/deepcluster/swav_RN50w4_400ep_pretrain.pth.tar) | [script](./scripts/swav_RN50w4_400ep_pretrain.sh) |
