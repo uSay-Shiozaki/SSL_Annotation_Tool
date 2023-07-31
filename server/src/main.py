@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from mymodels.my_unsup_cls import main_eval, init_distributed_mode
-
+from mymodels.ibot.my_unsup_cls import main_eval, init_distributed_mode
+from http_types import SchemaOfSmSLwithiBOTRequest, SchemaOfSmSLwithSwAVRequest, SchemaOfTableResponse
 app = FastAPI()
 
 # initialize distributed mode once

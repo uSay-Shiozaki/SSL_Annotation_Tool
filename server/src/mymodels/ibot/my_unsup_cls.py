@@ -99,7 +99,8 @@ def main_eval(arch="vit_small",
               num_workers: int = 10,
               pretrained_weights: str =None,
               checkpoint_key: str="student",
-              data_path: str=None):
+              data_path: str=None,
+              target: str = "val"):
     cudnn.benchmark = True
 
     # ============ preparing data ... ============
@@ -110,7 +111,7 @@ def main_eval(arch="vit_small",
         pth_transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
     ])
     # valdir = os.path.join(params.data_path, "val")
-    valdir = os.path.join(data_path, "val")
+    valdir = os.path.join(data_path, target)
     dataset_val = ImageFolder(valdir, transform=transform)
     data_loader_val = torch.utils.data.DataLoader(
         dataset_val,
@@ -180,17 +181,17 @@ def eval_unsup(model, data_loader):
 
 # MyFunctions
 
-def my_eval(model, data_path, data_loader, arch, patch_size, n_clusters=10, k_means: bool = True):
+def my_eval(model, data_path, data_loader, arch, patch_size, n_clusters=10, k_means: bool = True, target: str = "val"):
     real_labels, pred_labels = [], []
     output_labels = []
     # metric_logger for batches in each GPU of ViT
     metric_logger = utils.MetricLogger(delimiter="  ")
     
     files = []
-    for v in os.listdir(os.path.join(data_path, 'val')):
-        fileList = os.listdir(os.path.join(os.path.join(data_path, 'val'), v))
+    for v in os.listdir(os.path.join(data_path, target)):
+        fileList = os.listdir(os.path.join(os.path.join(data_path, target), v))
         for file in fileList:
-            path = os.path.join(os.path.join(os.path.join(data_path, 'val'), v), file)
+            path = os.path.join(os.path.join(os.path.join(data_path, target), v), file)
             files.append(path)
     
     predMap = {}
@@ -231,7 +232,7 @@ def my_eval(model, data_path, data_loader, arch, patch_size, n_clusters=10, k_me
             f.write(f"k_means score with {arch} {patch_size}x{patch_size} -> NMI, ARI, FMI = {output_scores}\n")
 
         for i, pred in enumerate(kmeans_pred):
-            path = os.path.join(os.path.join(data_path, 'val'), files[i])
+            path = os.path.join(os.path.join(data_path, target), files[i])
             if not str(pred) in predMap.keys():
                 predMap[str(pred)] = [path]
             else:

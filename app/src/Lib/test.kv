@@ -1,91 +1,127 @@
+#:import Factory kivy.factory.Factory
+
 <MainScreen>:
     orientation: 'vertical'
+    canvas.before:
+        Color:
+            rgba: 0.2, 0.2, 0.2, 1
+        Rectangle:
+            pos:self.pos
+            size: self.size
+
     BoxLayout:
-        id: page_button
+        id: menu_bar
         orientation: 'horizontal'
         adaptive_height: False
         size_hint_y: None
-        height: 55
-        Button:
-            id: run
-            text:'Clustering'
-            on_release: root.ids.image_grid.run_clustering()
+        height: 25
+        spacing: 10
+        
+        StartSpinner:
+            on_text: root.ids.image_grid.on_startSpinner(self, self.text)
 
-        Button:
-            id: start
-            text: 'Start'
-            on_release: root.ids.image_grid.start()
-        Button:
-            id : semi-L
-            text: "semi-learn"
-            on_release: root.ids.image_grid.semi_learning_button()
-        Label:
-            id: node_name
-            text: "Current\n Node"
-            color: "blue"       
-        MDTextField:
-            id: class_field
-            hint_text:"Class"
-            helper_text: "Error Occured"
-            helper_text_mode: "on_error"
-            mode: "fill"
-            max_test_length: 10
-        Button:
-            id:save
-            text:'Save'
-            on_release: root.ids.image_grid.save()
-            background_color: 'black'
-        Button:
-            id: mode_change
-            text: root.ids.image_grid.modeText
-            on_release: root.ids.image_grid.change_save_mode()
-            background_color: "black" 
-        Button:
-            id: node_previou
-            text: 'Node\n Previous'
-            on_release: root.ids.image_grid.node_previous()
-        Button:
-            id: node_next
-            text: 'Node Next'
-            on_release:root.ids.image_grid.node_next()
-        Button:
-            id:previous
-            text:'Page Previous'
-            on_release: root.ids.image_grid.page_previous()
-        Button:
-            id:next
-            text:'Page Next'
-            on_release: root.ids.image_grid.page_next()
-        Button:
-            id:remain
-            text:"Remain"
-            on_release: root.ids.image_grid.show_remain()
-        Button:
-            id:semi-prev
-            text:"Previous"
-            on_release: root.ids.image_grid.semi_previous_button()
-            background_color: 'red'
-        Button:
-            id:semi-next
-            text:"Next"
-            on_release: root.ids.image_grid.semi_next_button()
-            background_color: 'red'
-        Button:
-            id:start-semi-learning
-            text:"Semi-Leaning"
-            on_release: root.swavModuleExecution(); root.ids.image_grid.start_semi_learning()
-            background_color: 'red'
-        Label:
-            id: timer_text
-            text: root.ids.image_grid.timer.text
-            color: "red"
-        ToggleButton:
-            id: timer_button
-            text:f'Start Timer'
-            state: "normal"
-            background_color: "green"
-            on_release: root.ids.image_grid.timer.startTimer() if self.state == "down" else root.ids.image_grid.timer.stopTimer()
+    BoxLayout:
+        id: manipulation
+        orientation: 'horizontal'
+        adaptive_height: False
+        size_hint_y: None
+        height: 40
+        spacing: 20
+
+        BoxLayout:
+            orientation:'horizontal'
+            size_hint_x: None
+            width: 600
+
+            Label:
+                id: node_name
+                text: "Current: XX"
+                color: "white"
+
+            TextInput:
+                id: class_field
+                hint_text:"Label Entry"
+                helper_text: "Error Occured"
+                helper_text_mode: "on_error"
+                max_text_length: 10
+                multiline: False
+                size_hint_y: None
+                height: 37
+                padding: 10
             
+            LabelSpinner:
+                id: label_spinner
+                on_text: root.ids.image_grid.on_labelSpinner(self, self.text)
+                size_hint_x: None
+                width: 100
+
+            Button:
+                id:save
+                text:'Save'
+                on_release: root.ids.image_grid.save()
+                background_color: 'black'
+                size_hint_x: None
+                width: 100
+            Button:
+                id: mode_change
+                text: root.ids.image_grid.modeText
+                on_release: root.ids.image_grid.change_save_mode()
+                background_color: "black" 
+                size_hint_x: None
+                width: 100
+
+        
+        BoxLayout:
+            orientation:'horizontal'
+            size_hint_x: None
+            width: 200
+            canvas.before:
+                Color:
+                    rgba: app.outline_color
+                Line:
+                    width: 2
+                    rectangle: self.x, self.y, self.width, self.height
+            Button:
+                id: node_previou
+                text: 'Node\n Previous'
+                on_release: root.ids.image_grid.node_previous()
+                size_hint_x: None
+                width: 100
+            Button:
+                id: node_next
+                text: 'Node Next'
+                on_release:root.ids.image_grid.node_next()
+                size_hint_x: None
+                width: 100
+
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_x: None
+            width: 200
+
+            Button:
+                id:previous
+                text:'Page Previous'
+                on_release: root.ids.image_grid.page_previous()
+                size_hint_x: None
+                width: 100
+            Button:
+                id:next
+                text:'Page Next'
+                on_release: root.ids.image_grid.page_next()
+                size_hint_x: None
+                width: 100
+
+        BoxLayout:
+            orientation:'horizontal'
+            size_hint_x: None
+            width: 100
+
+            Button:
+                id:remain
+                text:"Remain"
+                on_release: root.ids.image_grid.show_remain()
+
     BoxLayout:
         id: main
         AnchorLayout:
@@ -95,10 +131,31 @@
                 root: root
                 id: image_grid
                 text: ""
-        Image:
-            id: preview
-            source: ""
-            size_hint: .2,1
+                canvas.before:
+                    Color:
+                        rgba: 0.1, 0.1, 0.1, 1
+                    Rectangle:
+                        pos:self.pos
+                        size: self.size
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint: .2,.2
+            pos_hint: {'top': 1}
+            canvas.before:
+                Color:
+                    rgba: 0.2, 0.2, 0.2, 1
+                Rectangle:
+                    pos:self.pos
+                    size: self.size
+            Label:
+                text: "Preview"
+                size_hint_y: None
+                height: 15
+            Image:
+                id: preview
+                source: ""
+
+
 
 
 <ScrollView>:
@@ -162,3 +219,23 @@
             Button:
                 text: "Save"
                 on_release: root.save(filechooser.path, text_input.text)
+
+<StartSpinnerOption@SpinnerOption>:
+
+
+<StartSpinner@Spinner>:
+    size_hint_x: None
+    width: 200
+    text: "start"
+    values: "SSL", "SmSL iBOT", "SmSL SwAV", "Load Annotation Data"
+    sync_height: True
+    option_cls: Factory.get("StartSpinnerOption")
+
+
+<LabelSpinner@Spinner>:
+    text: "Labels"
+    values: []
+    sync_height: True
+
+<CreateMargin@BoxLayout>:
+    size_hint_x: None 
