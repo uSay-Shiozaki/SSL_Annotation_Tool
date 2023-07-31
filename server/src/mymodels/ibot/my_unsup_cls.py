@@ -230,9 +230,6 @@ def my_eval(model, data_path, data_loader, arch, patch_size, n_clusters=10, k_me
             f = open('log_eval_score.txt', 'a')
             f.write(f"k_means score with {arch} {patch_size}x{patch_size} -> NMI, ARI, FMI = {output_scores}\n")
 
-
-        # get_true_pred_map(real_labels, kmeans_pred)
-        
         for i, pred in enumerate(kmeans_pred):
             path = os.path.join(os.path.join(data_path, 'val'), files[i])
             if not str(pred) in predMap.keys():

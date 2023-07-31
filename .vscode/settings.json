@@ -1,3 +1,7 @@
 {
-  "python.linter": ""
+  "python.linter": "",
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+  "python.formatting.provider": "none"
 }
