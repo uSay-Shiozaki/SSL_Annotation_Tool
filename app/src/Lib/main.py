@@ -1,7 +1,6 @@
 from kivymd.app import MDApp
 from kivy.core.window import Window
 from widgets.MainScreen import MainScreen
-from kivy.uix.spinner import Spinner
 from kivy.properties import ListProperty
 from kivy.utils import rgba
 import asyncio

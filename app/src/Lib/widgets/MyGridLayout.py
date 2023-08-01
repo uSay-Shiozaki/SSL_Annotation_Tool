@@ -181,7 +181,9 @@ class MyGridLayout(MDGridLayout):
 
     def show_node(self, startId, quantity, nodeNmb, clustering=False):
         print(f"nodeNmb is {nodeNmb}")
+        self.nodeList = [x for x in self.jsons.keys()]
         self.tiles = []
+        
         # modify this path later
         if startId < 0:
             startId = 0
@@ -619,73 +621,12 @@ class MyGridLayout(MDGridLayout):
         self.nodeList.append("rest")
         return True
     
-    async def getClusteringTable(self):
-        loop = asyncio.get_event_loop()
-        endPoint: str = 'http://ssl_server:8000/api/clustering'
-        fileSize = int(requests.head(endPoint).headers['content-length'])
-        
-        async def loading(fileSize):
-            pbar = tqdm(total=fileSize, unit="B", unit_scale=True)
-            for chunk in resp.iter_content(chunk_size=1024):
-                self.clear_all()
-                self.progressText = Label(
-                    text=f"Clustering Now... {chunk} / {fileSize}")
-                self.add_widget(self.progressText)
-                pbar.update(len(chunk))
-            pbar.close()
-            
-        resp = await loop.run_in_executor(None, requests.post, endPoint, stream=True)
-
-        gather = asyncio.gather(loading(fileSize),resp)
-        
-        if resp.status_code == requests.codes.ok:
-            resp = resp.json()
-            print(resp['body'])
-            return resp['body']
-        else:
-            return "err"
-    
-    def runSSL(self):
-        self.clear_all()
-            
-        loop = asyncio.get_event_loop()
-        gather = asyncio.gather(
-            self.getClusteringTable(),
+    def showNodeHandler(self, res):
+        self.jsons = res
+        self.show_node(
+            self.startId, self.quantity, self.index, clustering=self.clustering
         )
-        res = loop.run_until_complete(gather)
-        
-        self.clear_all()
-        if not res == "err":
-            self.jsons = res[0]
-            self.nodeList = [x for x in self.jsons.keys()]
-            self.show_node(
-                self.startId, self.quantity, self.nodeNmb, clustering=self.clustering
-            )
-        else:
-            logging.fatal("Error in SSL processing")
-        
-    def on_startSpinner(self, instance, text):
-        if text == "SSL":
-            print("SSL")
-            self.root.ids.image_grid.runSSL()
 
-        elif text == "SmSL iBOT":
-            print("SmSL with iBOT")
-            # self.ids.image_grid.runSmSLwithiBOT()
-
-        elif text == "SmSL SwAV":
-            print("SmSL with SwAV")
-            # self.ids.image_grid.semi_learning_button()
-
-        elif text == "Load Annotation Data":
-            print("Load Annotation Data")
-            self.root.ids.image_grid.start()
-
-        else:
-            print("No option has been selected")
-        
-        instance.text = "start"
-        
     def on_labelSpinner(self, instance, text):
         
         self.root.ids.class_field.text = text
@@ -693,8 +634,6 @@ class MyGridLayout(MDGridLayout):
     
     
     
-    
-        
     
 class LoadDialog(FloatLayout):
     load = ObjectProperty(None)

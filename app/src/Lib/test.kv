@@ -18,7 +18,7 @@
         spacing: 10
         
         StartSpinner:
-            on_text: root.ids.image_grid.on_startSpinner(self, self.text)
+            root: root
 
     BoxLayout:
         id: manipulation
@@ -224,13 +224,14 @@
 
 
 <StartSpinner@Spinner>:
+    id: start_spinner
     size_hint_x: None
     width: 200
     text: "start"
     values: "SSL", "SmSL iBOT", "SmSL SwAV", "Load Annotation Data"
     sync_height: True
     option_cls: Factory.get("StartSpinnerOption")
-
+    on_text: self.on_startSpinner(self, self.text)
 
 <LabelSpinner@Spinner>:
     text: "Labels"
@@ -239,3 +240,29 @@
 
 <CreateMargin@BoxLayout>:
     size_hint_x: None 
+
+<YNPopup>:
+    FloatLayout:
+        Label:
+            size_hint: 0.8, 0.6
+            pos_hint: {'x': 0.1, 'y':0.4}
+            text: root.message
+
+        Button:
+            size_hint: 0.4, 0.35
+            pos_hint: {'x':0.1, 'y':0.05}
+            text: 'Yes'
+            on_release: root.dispatch('on_yes')
+
+        Button:
+            size_hint: 0.4, 0.35
+            pos_hint: {'x':0.5, 'y':0.05}
+            text: 'No'
+            on_release: root.dispatch('on_no')
+
+<PopupWaiting>:
+    FloatLayout:
+        Label:
+            size_hint: 0.8, 0.6
+            pos_hint: {'x': 0.1, 'y':0.4}
+            text: root.message
