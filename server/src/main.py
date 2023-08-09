@@ -1,6 +1,13 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from mymodels.ibot.my_unsup_cls import main_eval, init_distributed_mode
-from http_types import SchemaOfSmSLwithiBOTRequest, SchemaOfSmSLwithSwAVRequest, SchemaOfTableResponse
+from http_types import (
+    SchemaOfSmSLwithiBOTRequest,
+    SchemaOfSmSLwithSwAVRequest,
+    SchemaOfTableResponse,
+    SchemaOfInputDataPathRequest
+)
 app = FastAPI()
 
 # initialize distributed mode once
@@ -10,15 +17,16 @@ init_distributed_mode(dist_url="env://")
 def get_hello_message():
     return {"message": "Hello World"}
 
+@app.exception_handler(RequestValidationError)
+async def handler(request: Request, exc:RequestValidationError):
+    print(exc)
+    return JSONResponse(content={}, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
     
 @app.post('/api/clustering', response_model=SchemaOfTableResponse)
-def getClusteringTable():
-    params = {
-        "pretrained_weights": "/weights/ibot_small_pretrain.pth",
-        "data_path": "/dataset"
-    }
-    
-    # convert to dict
+def getClusteringTable(params: SchemaOfInputDataPathRequest):
+    # parse dict args
+    params = params.dict()
     clusteringTable = main_eval(**params)
     return clusteringTable
 

@@ -8,6 +8,9 @@ import os
 import subprocess
 from kivy.network.urlrequest import UrlRequest
 import asyncio
+import utils
+import shutil
+from widgets.PopupRaiseError import PopupRaiseError
 
 class MainScreen(BoxLayout):
     def __init__(self, **kwargs):
@@ -37,5 +40,24 @@ class MainScreen(BoxLayout):
                         on_failure=self.on_failure, on_error=self.on_error,
                         on_progress=self.on_progress)
         return res
+        
+    def export(self):
+        savePath = utils.saveDialog()
+        if savePath:
+            if os.path.exists('/database/temp_ssl.json'):
+                shutil.copyfile('/database/temp_ssl.json', savePath)
+            else:
+                # raise FileNotFoundError("Please classify your data before export")
+                
+                pop = PopupRaiseError(
+                    title='Raise Error',
+                    size_hint = (0.4, 0.3),
+                    pos_hint = {'x': 0.3, 'y': 0.35},
+                    message = "Please classify your data before export."
+                )
+                pop.bind(
+                    on_yes=pop.dismiss
+                )
+                pop.open()
 
         

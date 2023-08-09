@@ -19,7 +19,7 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./app/src/Lib:/app/Lib
       - ./database:/database
-      - /media/irielab/win_drive/ImageNet/imagenet-object-localization-challenge-2012/ILSVRC/Data/CLS-LOC/10class_train_val:/dataset
+      - /media/irielab:/dataset
     environment:
       - DISPLAY=:0
     deploy:
@@ -30,7 +30,7 @@ services:
 
   server:
     image: img_server
-    container_name: ssl_server
+    container_name: kivy_server
     build:
       context: ./server
       dockerfile: Dockerfile
@@ -42,7 +42,7 @@ services:
       - ./server/weights:/weights
       - ./server/src:/server/src
       - ./database:/database
-      - /media/irielab/win_drive/ImageNet/imagenet-object-localization-challenge-2012/ILSVRC/Data/CLS-LOC/10class_train_val:/dataset
+      - /media/irielab:/dataset
     networks:
       - app_network
     ipc: host

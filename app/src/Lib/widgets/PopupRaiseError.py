@@ -1,12 +1,13 @@
 from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import ObjectProperty, StringProperty
+from kivy.uix.spinner import Spinner
+from kivy.uix.button import Button
+from kivy.uix.label import Label
+import utils
 
-class PopupMenu(BoxLayout):
-  popup_close = ObjectProperty(None)
-  
-class YNPopup(Popup):
-  __events__ = ('on_yes', 'on_no')
+class PopupRaiseError(Popup):
+  __events__ = ('on_yes','on_no')
   message = StringProperty('')
   
   def __init__(self, **kwargs) -> None:
@@ -18,10 +19,4 @@ class YNPopup(Popup):
   
   def on_no(self):
     pass
-
-class PopupWaiting(Popup):
-  message = StringProperty('')
   
-  def __init__(self, **kwargs) -> None:
-    super().__init__(**kwargs)
-    self.auto_dismiss = False

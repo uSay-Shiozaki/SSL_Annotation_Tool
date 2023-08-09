@@ -21,7 +21,8 @@ import asyncio
 from dotenv import load_dotenv
 from kivy.network.urlrequest import UrlRequest
 import threading
-import requests 
+import requests
+import utils
 
 load_dotenv()
 DIALOG_DEFAULT_PATH = "/database"
@@ -402,8 +403,8 @@ class MyGridLayout(MDGridLayout):
             logging.info("Mode Saving Unselected Images")
             # dump json file which has a file path user selected
             if self.root.ids.class_field.text:
-                # self-supervised classify section
-                self.writeJson(self.root.ids.class_field.text, "self-labels.json")
+
+                self.writeJson(self.root.ids.class_field.text, "temp_ssl.json")
                 logging.info("saved json")
                 
                 # add a label to label spinner
@@ -433,15 +434,8 @@ class MyGridLayout(MDGridLayout):
         # get this class's children tiles in a page
         logging.debug(f"tiles\n{self.children}")
         for v in self.pressButtonList:
-            for child in self.children:
-                if hasattr(child, "id"):
-                    logging.debug(
-                        f"v={v} type={type(v)} : child.id={child.id} \
-                        type={type(child.id)}"
-                    )
-                    if int(child.id) == v:
-                        logging.info("removing...")
-                        self.remove_widget(child)
+            logging.debug(f"deleted {v}")
+            self.remove_widget(v)
         self.pressButtonList = []
 
     def bool_noItems(self):
@@ -543,7 +537,7 @@ class MyGridLayout(MDGridLayout):
         for v in self.tiles:
             self.jsons[str(self.nodeList[self.index])].append(v)
             
-        with open(self.json_path, "w") as f:
+        with open('/database/temp_clustering.json', "w") as f:
             json.dump(self.jsons, f, indent=4)
             
         targetList.clear()
@@ -582,7 +576,7 @@ class MyGridLayout(MDGridLayout):
         global DIALOG_DEFAULT_PATH
         # add images on the list
         if dialog:
-            self.json_path: str = self.show_openDialog()
+            self.json_path: str = utils.openDialog()
             if len(self.json_path) <= 1:
                 print("Please Select JSON file.")
                 return False
@@ -593,12 +587,18 @@ class MyGridLayout(MDGridLayout):
                 if not ext == '.json':
                     print("This file is not JSON. Please open a JSON file.")
                     return False
+                
+            # check validity of image path
+            datasetRoot = self.checkPathValidity(self.json_path)
+            if not datasetRoot:
+                return False
             
             # load a json file as dict
             self.jsons = self.openJsonImages(self.json_path)
-                    
-        elif json:
+            
+        elif not self.json and json:
             self.jsons = json
+            
         else:
             print("No json file")
             return False
@@ -607,19 +607,46 @@ class MyGridLayout(MDGridLayout):
         self.semiBool = False
 
         # load images
-        # torch data loader's shuffle must be false
-        self.fileList = []
-        for fd_path, sb_fd, sb_f in os.walk('/dataset'):
-            for imageFile in sb_f:
-                path = os.path.join(fd_path, imageFile)
-                self.fileList.append(path)
-
         self.nodeNmb = 0
         print(f"Load map keys {self.jsons.keys()}")
         self.nodeList = [x for x in self.jsons.keys()]
         # add rest of images not selected
         self.nodeList.append("rest")
+        
+        # torch data loader's shuffle must be false
+        self.fileList = []
+        for fd_path, sb_fd, sb_f in os.walk(datasetRoot):
+            for imageFile in sb_f:
+                path = os.path.join(fd_path, imageFile)
+                self.fileList.append(path)
+        print(f"first files at {self.fileList[0]}")
+
         return True
+    
+    def checkPathValidity(self, jsonPath):
+        if not jsonPath:
+            raise FileNotFoundError(f"There is not a json file at {jsonPath}")
+        
+        else:
+            
+            _, ext = os.path.splitext(jsonPath)
+            if not ext == '.json':
+                raise ValueError(f"This file is not json: {jsonPath}")
+            
+            else:
+            
+                j = self.openJsonImages(jsonPath)
+                k = list(j.keys())[0]
+                checkPath = j[k][0]
+                print(f"check a file at {checkPath}")
+                if not os.path.isfile(checkPath):
+                    raise FileNotFoundError(f"There is no file at {checkPath}")
+                
+                else:
+                    datasetRoot = os.path.split(checkPath)[0]
+                    return datasetRoot
+            
+        return False
     
     def showNodeHandler(self, res):
         self.jsons = res

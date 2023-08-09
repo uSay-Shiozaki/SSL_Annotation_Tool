@@ -1,8 +1,10 @@
 from kivy.uix.spinner import Spinner
 from widgets.PopupWaiting import YNPopup, PopupWaiting
+from widgets.PopupArguments import PopupArgumentsforSSL
 import threading
 import utils
-from kivy.clock import mainthread
+from kivy.clock import mainthread, Clock
+
 class StartSpinner(Spinner):
   root = None
   
@@ -10,17 +12,17 @@ class StartSpinner(Spinner):
       if text == "SSL":
           print("SSL")
           # self.root.ids.image_grid.runSSL()
-          self.popup_open('Are you sure runnning SSL?', 'ssl')
+          self.popup_open('run SSL?', 'ssl')
 
       elif text == "SmSL iBOT":
           print("SmSL with iBOT")
           # self.ids.image_grid.runSmSLwithiBOT()
-          self.popup_open('Are you sure runnning SmSL with iBOT?', 'smsl-ib')
+          self.popup_open('run SmSL with iBOT?', 'smsl-ib')
 
       elif text == "SmSL SwAV":
           print("SmSL with SwAV")
           # self.ids.image_grid.semi_learning_button()
-          self.popup_open('Are you sure runnning SmSL with SwAV', 'smsl-sw')
+          self.popup_open('run SmSL with SwAV', 'smsl-sw')
 
       elif text == "Load Annotation Data":
           print("Load Annotation Data")
@@ -37,6 +39,11 @@ class StartSpinner(Spinner):
       pos_hint={'x':0.3, 'y':0.35},
     )
     if mode == 'ssl':
+      self.pop = pop = PopupArgumentsforSSL(
+        title='arguments',
+        size_hint=(0.4, 0.3),
+        pos_hint={'x':0.3, 'y':0.35},
+        )
       pop.bind(
         on_yes=self._popup_yes_ssl,
         on_no=self._popup_no,
@@ -48,23 +55,34 @@ class StartSpinner(Spinner):
     )
     elif mode == 'smsl-sw':
       pop.bind(
-        on_yes=self._popup_yes_sw,
+        on_yes=self._popup_yes_smsl_sw,
         on_no=self._popup_no,
       )
     self.pop.open()
     
   def _popup_yes_ssl(self, instance):
     self.res = None
-    self._popup_close()
-    self.popup_waiting()
+    self.json = {
+      "data_path": self.pop.ids.input_data_path.text,
+      "arch": self.pop.ids.arch_spinner.text
+    }
     
-    def _process():
-      self.res = utils.runSSL()
-      self._showNodeHandler()
-      self._popup_waiting_close()
-      
-    self.thread1 = threading.Thread(target=_process, daemon=True)
-    self.thread1.start()
+    if len(self.json['data_path']) < 1 or self.json == "Model Size":
+      def do(dt):
+        self.pop.ids.warning.text = "please fill all arguments"
+      Clock.schedule_once(do)
+    
+    else:
+      def _process():
+        print(self.json)
+        self.res = utils.runSSL(self.json)
+        self._showNodeHandler()
+        self._popup_waiting_close()
+        
+      self._popup_close()
+      self.popup_waiting()
+      self.thread1 = threading.Thread(target=_process, daemon=True)
+      self.thread1.start()
     
   @mainthread
   def _popup_close(self):

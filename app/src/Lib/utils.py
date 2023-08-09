@@ -5,11 +5,12 @@ import threading
 from kivy.uix.progressbar import ProgressBar
 from kivy.uix.popup import Popup
 from kivy.uix.button import Button
+from tkinter import filedialog
+import tkinter as tk
 
-def getClusteringTable():
-    endPoint: str = 'http://ssl_server:8000/api/clustering'
-    
-    resp = requests.post(endPoint)
+def getClusteringTable(obj):
+    endPoint: str = 'http://kivy_server:8000/api/clustering'
+    resp = requests.post(endPoint, json=obj)
     
     if resp.status_code == requests.codes.ok:
         resp = resp.json()
@@ -17,33 +18,33 @@ def getClusteringTable():
     else:
         return "err"
 
-def runSSL():
-    res = getClusteringTable() 
+def runSSL(obj):
+    res = getClusteringTable(obj) 
     
     return res
 
-def openInfoPopup(_button: Button):
-    def update_progress(an_object, popup):
-        for i in range(10, -1, -1):
-            time.sleep(1.0)
-            print("progress: {}".format(i))
-            an_object.value = i
-        popup.dismiss()
-    
-    content = ProgressBar(max=10)
-    popup = Popup(
-        title='Progress',
-        size_hint=(None, None), size=(400, 180),
-        content=content,
-        auto_dismiss=False
-    )
-    threading.Thread(
-        target=partial(
-            update_progress, 
-            an_object=content,
-            popup=popup,
-        ),
-        daemon=True
-        ).start()
-    popup.open()
-            
+def saveDialog():
+
+    typ = [('JSON File', '*.json'), ('All', '*')]
+    root = tk.Tk()
+    root.withdraw()
+    file = filedialog.asksaveasfilename(filetypes=typ)
+    print(file)
+    return file
+
+def openDialog():
+
+    typ = [('JSON File', '*.json'), ('All', '*')]
+    root = tk.Tk()
+    root.withdraw()
+    file = filedialog.askopenfilename(filetypes=typ)
+    print(file)
+    return file
+
+def openDirDialog():
+
+    root = tk.Tk()
+    root.withdraw()
+    file = filedialog.askdirectory()
+    print(file)
+    return file

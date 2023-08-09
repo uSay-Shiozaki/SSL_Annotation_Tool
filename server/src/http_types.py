@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 class SchemaOfInputDataPathRequest(BaseModel):
-    pretrained_weights: str
+    arch: str
     data_path: str
 
 class SchemaOfTableResponse(BaseModel):
