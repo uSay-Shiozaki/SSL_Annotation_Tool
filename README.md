@@ -14,6 +14,7 @@ Set your image directory locations
 ~/SSL_Annotation_Tool$ vim .env
 ```
 ```
+~/SSL_Annotation_Tool/.env$
 YOUR_IMAGE_DATASET_PATH={YOUR_IMAGE_DATASET_PATH}
 ```
 ```
@@ -23,11 +24,11 @@ YOUR_IMAGE_DATASET_PATH={YOUR_IMAGE_DATASET_PATH}
 ## Operations
 ### Start
    #### SSL  
-   Run Self-Supervised Learning with the JSON file of a user, using small iBOT weights [available].
+   Run Self-Supervised Learning with the JSON file of a user, using small iBOT weights [available](https://lf3-nlp-opensource.bytetos.com/obj/nlp-opensource/archive/2022/ibot/vits_16/checkpoint_teacher.pth).
    #### SmSL iBOT  
-   Run Semi-Supervised Learning on the selected images with iBOT.
+   Run Semi-Supervised Learning on the selected images with [iBOT](https://github.com/bytedance/ibot).
    #### SmSL SwAV  
-   Run Semi-Supervised Learning on the selected images with SwAV. We recommend using SwAV if the images are low-resolution images.
+   Run Semi-Supervised Learning on the selected images with [SwAV](https://github.com/facebookresearch/swav). We recommend using SwAV if the images are low-resolution images.
    #### Load Annotation Data  
    Load a JSON file of annotation data and Display images.
  ### Export  
@@ -55,6 +56,9 @@ YOUR_IMAGE_DATASET_PATH={YOUR_IMAGE_DATASET_PATH}
   Display an image the user clicked.
 
 # Example
+```
+
+```
 
 
 
