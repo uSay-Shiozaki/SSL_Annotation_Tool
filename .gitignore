@@ -1,0 +1,3 @@
+.env
+docker_compose_dev.yml
+docker_compose_dev_front.yml
