@@ -22,12 +22,16 @@ YOUR_IMAGE_DATASET_PATH={YOUR_IMAGE_DATASET_PATH}
 # Manual
 ## Operations
 ### Start
-   #### SSL
-   #### SmSL iBOT
-   #### SmSL SwAV
-   #### Load Annotation Data
+   #### SSL  
+   Run Self-Supervised Learning with the JSON file of a user, using small iBOT weights [available].
+   #### SmSL iBOT  
+   Run Semi-Supervised Learning on the selected images with iBOT.
+   #### SmSL SwAV  
+   Run Semi-Supervised Learning on the selected images with SwAV. We recommend using SwAV if the images are low-resolution images.
+   #### Load Annotation Data  
+   Load a JSON file of annotation data and Display images.
  ### Export  
-   Export the JSON file the user checked.
+   Export the JSON file of annotation data the user checked.
 
 ## Menu Bar
  ### Current: XX  
