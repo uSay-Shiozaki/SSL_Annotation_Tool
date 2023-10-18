@@ -26,28 +26,28 @@ YOUR_IMAGE_DATASET_PATH={YOUR_IMAGE_DATASET_PATH}
    #### SmSL iBOT
    #### SmSL SwAV
    #### Load Annotation Data
- ### Export
+ ### Export  
    Export the JSON file the user checked.
 
 ### Menu Bar
- #### Current: XX
+ #### Current: XX  
    Display the number of the current clusters.
- #### Label Entry
+ #### Label Entry  
    Entry to register a category name of the cluster images.
- #### Save
+ #### Save  
    Save the category name in the entry box.
- #### Remove/Keep Target
+ #### Remove/Keep Target  
    Select Remove or Keep mode to operate the images a user selected.
- #### Node Previous/Next
+ #### Node Previous/Next  
    Move to the previous or next cluster nodes.
- #### Page Previous/Next
+ #### Page Previous/Next  
    Move to the previous or next pages in a cluster.
- #### Remain
+ #### Remain  
    Display the rest of the images removed by the operations.
 
-### Grid View
+### Grid View  
   Display images in a cluster on each page.
-### Preview
+### Preview  
   Display an image the user clicked.
 
 # Example
