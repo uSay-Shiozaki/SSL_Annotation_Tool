@@ -14,8 +14,7 @@ Set your image directory locations
 ~/SSL_Annotation_Tool$ vim .env
 ```
 ```
-~/SSL_Annotation_Tool/.env$
-YOUR_IMAGE_DATASET_PATH={YOUR_IMAGE_DATASET_PATH}
+YOUR_IMAGE_DATASET_PATH={YOUR/IMAGE/DATASET/PATH}
 ```
 ```
 ~$ docker-compose up
