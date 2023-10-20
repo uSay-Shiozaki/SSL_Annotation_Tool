@@ -8,17 +8,34 @@ services
 - Docker Compose
 
 # Installation
+Clone our repository
+
+```
+git clone https://github.com/uSay-Shiozaki/SSL_Annotation_Tool
+```
+
 Edit env file
-Set your image directory locations
+Set your image directory locations.
+
 ```
 ~/SSL_Annotation_Tool$ vim .env
 ```
 ```
 YOUR_IMAGE_DATASET_PATH={YOUR/IMAGE/DATASET/PATH}
 ```
+Confirm cuDNN and CUDA versions.
+Change the docker image in Dockerfile in "server" directory if the CUDA doesn't match. [nvidia docker images](https://hub.docker.com/r/nvidia/cuda)
+Default image is nvcr.io/nvidia/pytorch:22.07-py3
+
+```
+~/SSL_Annotation_Tools$ vim ./server/Dockerfile
+FROM nvcr.io/nvidia/pytorch:22.07-py3 <- change this image to the matched image.
+```
+
 ```
 ~$ docker-compose up
 ```
+
 # Manual
 ## Operations
 ### Start
