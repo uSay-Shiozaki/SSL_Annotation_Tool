@@ -71,10 +71,6 @@ FROM nvcr.io/nvidia/pytorch:22.07-py3 <- change this image to the matched image.
 ## Preview  
   Display an image the user clicked.
 
-# Example
-```
-
-```
 
 
 
