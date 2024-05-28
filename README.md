@@ -3,7 +3,7 @@ A Tool for building image datasets without every labeling by using self-supervis
 
 # Requirements
 - OS: Linux 
-- GPU: Geforce RTX2080
+- GPU: nVidia GPU
 # services
 - Docker Compose
 
