@@ -14,7 +14,7 @@ def get_hello_message():
 @app.post('/api/clustering', response_model=SchemaOfTableResponse)
 def getClusteringTable():
     params = {
-        "pretrained_weights": "/weights/ibot_small_pretrain.pth",
+        "pretrained_weights": "/weights/clustering_cifar10_ckp.pth",
         "data_path": "/dataset"
     }
     
@@ -26,7 +26,7 @@ def getClusteringTable():
 @app.post('/api/smsl-ibot', response_model=SchemaOfTableResponse)
 def getSmSLwithiBOT():
     params = {
-        "pretrained_weights": "/weights/ibot_small_pretrain.pth",
+        "pretrained_weights": "/weights/clustering_imagenet_ckp.pth",
         "data_path": "/dataset"
     }
     params = SchemaOfSmSLwithiBOTRequest(**params)
@@ -37,7 +37,7 @@ def getSmSLwithiBOT():
 @app.post('/api/smsl-swav', response_model=SchemaOfTableResponse)
 def getSmSLwithSwAV():
     params = {
-        "pretrained_weights": "/weights/swav_pretrain.pth",
+        "pretrained_weights": "/weights/swav_800ep_pretrain.pth.tar",
         "data_path": "/dataset"
     }
     params = SchemaOfSmSLwithSwAVRequest(**params)

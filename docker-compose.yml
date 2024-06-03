@@ -21,7 +21,7 @@ services:
       - ./database:/database
       - ${YOUR_IMAGE_DATASET_PATH}:/dataset
     environment:
-      - DISPLAY=:${YOUR_HOST_IP}0
+      - DISPLAY=:0
     deploy:
       resources:
         reservations:
