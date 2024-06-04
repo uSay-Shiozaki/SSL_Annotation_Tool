@@ -1,7 +1,6 @@
 FROM nvcr.io/nvidia/pytorch:22.07-py3
 RUN python3 -m pip install fastapi==0.68.1 uvicorn pydantic==1.8.2 \
     timm munkres 
-RUN apt-get -y install gdown
 
 COPY ./src /src
 WORKDIR /src
