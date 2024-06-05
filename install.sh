@@ -15,3 +15,6 @@ gdown https://drive.google.com/uc?id=1rdCZwn5jMQbKurscJTjM8jz3WkFgSlEc
 
 # pretrained-weight from ImageNet for SwAV
 # gdown https://drive.google.com/uc?id=15_K21qGvUvEqbkZKu0NHT2VyOtFgn5RR
+
+# create docker network
+sudo docker network create app_network
