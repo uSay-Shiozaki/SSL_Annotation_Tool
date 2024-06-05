@@ -20,9 +20,13 @@ from tkinter import filedialog
 import asyncio
 from dotenv import load_dotenv
 from kivy.network.urlrequest import UrlRequest
+import threading
+import requests
+import utils
 
 load_dotenv()
 DIALOG_DEFAULT_PATH = "/database"
+SAVEDIR = '/database'
 logging.basicConfig(level=logging.DEBUG, format="%(levelname)s: %(message)s")
 
 class MyGridLayout(MDGridLayout):
@@ -46,20 +50,22 @@ class MyGridLayout(MDGridLayout):
         self.selectSave = False
         self.clustering = True
         self.modeRemain = False
-        self.modeText = "Remove Target"
+        self.modeText = "Remove\n Target"
         self.index = 0
         self.nodeNmb = 0
         self.nodeList = []
+        self.semiBool = False
         logging.info("GRID LAUNCHED")
 
         # print(f"self.fileList is below\n {self.fileList}")
 
         self.timer = Timer()
         self.previewSrc = ""
-        Clock.schedule_interval(self.update, 1)
+        Clock.schedule_interval(self.update, 0.1)
         
     def update(self, dt):
         self.root.ids.preview.source = self.previewSrc
+        self.root.ids.preview.reload()
         
     def change_save_mode(self):
         self.selectSave = not self.selectSave
@@ -69,33 +75,13 @@ class MyGridLayout(MDGridLayout):
             tile.canvas.after.remove(tile.rect)
             
         if not self.selectSave:
-            self.modeText = "Remove Target"
+            self.modeText = "Remove\n Target"
             self.root.ids.mode_change.background_color = "black"
         else:
-            self.modeText = "Save Target"
+            self.modeText = "Save\n Target"
             self.root.ids.mode_change.background_color = "red"
         print(f"mode is {self.modeText} now")
         self.root.ids.mode_change.text = self.modeText
-        
-    def on_success(self, request, result):
-        self.clear_all()
-        success = self.openFile(result["body"], dialog=False)
-        if success:
-            self.show_node(self.startId, self.quantity, self.nodeNmb, clustering=self.clustering)
-    
-    def on_progress(self, request, current_size, total_size):
-        self.progressText.text = f"Clustering Now... {current_size} / {total_size}"
-        print(f"Clustering Now... {current_size} / {total_size}")
-    
-    async def getClusteringTable(self):
-        self.progressText = Label(text=f"Clustering Now...")
-        self.add_widget(self.progressText)
-        endPoint: str = 'http://ssl_server:8000/api/clustering'
-        res = await UrlRequest(endPoint, method='POST', on_success=self.on_success, on_progress=self.on_progress)
-        
-    async def run_clustering(self):
-        self.clear_all()
-        res = self.getClusteringTable()
 
     def start(self):
         self.clear_all()
@@ -188,11 +174,17 @@ class MyGridLayout(MDGridLayout):
                     )
                 )
             if startId + quantity >= self.len:
-                self.add_widget(Label(text="END", color="black"))
+                self.add_widget(
+                    Label(
+                        text="END", 
+                        color="black",
+                        ))
 
     def show_node(self, startId, quantity, nodeNmb, clustering=False):
         print(f"nodeNmb is {nodeNmb}")
+        self.nodeList = [x for x in self.jsons.keys()]
         self.tiles = []
+        
         # modify this path later
         if startId < 0:
             startId = 0
@@ -260,7 +252,10 @@ class MyGridLayout(MDGridLayout):
                         )
                     #  print(f"Tile added\nTarget: {nodeList[i][1]}")
         if startId + quantity >= self.len:
-            self.add_widget(Label(text="END", color="black"))
+            self.add_widget(Label(
+                text="END",
+                color="black",
+                ))
 
     def clear_all(self):
         self.clear_widgets()
@@ -333,6 +328,7 @@ class MyGridLayout(MDGridLayout):
         return list
 
     def save(self):
+        
         if self.semiBool:
             # dump json file which has a file path user selected
             if self.root.ids.class_field.text:
@@ -340,7 +336,25 @@ class MyGridLayout(MDGridLayout):
                 self.write_selected_file(
                     self.root.ids.class_field.text, self.selectFilePathList
                 )
+                # add a label to label spinner
+                self.root.ids.label_spinner.values.append(
+                    self.root.ids.class_field.text)
+                self.root.ids.label_spinner.values.set()
+                print(f"current labels {self.root.ids.label_spinner.values}")
+                self.root.ids.label_spinner.text = "Labels"
+                
                 logging.info("saved json")
+                
+                # add a label to label spinner
+                print(self.root.ids)
+                values = self.root.ids.label_spinner.values
+                values.append(self.root.ids.class_field.text)
+                values = list(set(values))
+                self.root.ids.label_spinner.values = values
+                print(f"current labels {self.root.ids.label_spinner.values}")
+                self.root.ids.label_spinner.text = "Labels"
+                
+                # initialze text field
                 self.root.ids.class_field.text = ""
             else:
                 logging.warning("text field is None")
@@ -362,6 +376,17 @@ class MyGridLayout(MDGridLayout):
                     "self-labels.json",
                 )
                 logging.info("saved json")
+                
+                # add a label to label spinner
+                print(self.root.ids)
+                values = self.root.ids.label_spinner.values
+                values.append(self.root.ids.class_field.text)
+                values = list(set(values))
+                self.root.ids.label_spinner.values = values
+                print(f"current labels {self.root.ids.label_spinner.values}")
+                self.root.ids.label_spinner.text = "Labels"
+                
+                # initialze text field
                 self.root.ids.class_field.text = ""
                 
             else:
@@ -378,9 +403,20 @@ class MyGridLayout(MDGridLayout):
             logging.info("Mode Saving Unselected Images")
             # dump json file which has a file path user selected
             if self.root.ids.class_field.text:
-                # self-supervised classify section
-                self.writeJson(self.root.ids.class_field.text, "self-labels.json")
+
+                self.writeJson(self.root.ids.class_field.text, "temp_ssl.json")
                 logging.info("saved json")
+                
+                # add a label to label spinner
+                print(self.root.ids)
+                values = self.root.ids.label_spinner.values
+                values.append(self.root.ids.class_field.text)
+                values = list(set(values))
+                self.root.ids.label_spinner.values = values
+                print(f"current labels {self.root.ids.label_spinner.values}")
+                self.root.ids.label_spinner.text = "Labels"
+                
+                # initialze text field
                 self.root.ids.class_field.text = ""
             else:
                 logging.warning("text field is None")
@@ -398,15 +434,8 @@ class MyGridLayout(MDGridLayout):
         # get this class's children tiles in a page
         logging.debug(f"tiles\n{self.children}")
         for v in self.pressButtonList:
-            for child in self.children:
-                if hasattr(child, "id"):
-                    logging.debug(
-                        f"v={v} type={type(v)} : child.id={child.id} \
-                        type={type(child.id)}"
-                    )
-                    if int(child.id) == v:
-                        logging.info("removing...")
-                        self.remove_widget(child)
+            logging.debug(f"deleted {v}")
+            self.remove_widget(v)
         self.pressButtonList = []
 
     def bool_noItems(self):
@@ -508,7 +537,7 @@ class MyGridLayout(MDGridLayout):
         for v in self.tiles:
             self.jsons[str(self.nodeList[self.index])].append(v)
             
-        with open(self.json_path, "w") as f:
+        with open('/database/temp_clustering.json', "w") as f:
             json.dump(self.jsons, f, indent=4)
             
         targetList.clear()
@@ -547,7 +576,7 @@ class MyGridLayout(MDGridLayout):
         global DIALOG_DEFAULT_PATH
         # add images on the list
         if dialog:
-            self.json_path: str = self.show_openDialog()
+            self.json_path: str = utils.openDialog()
             if len(self.json_path) <= 1:
                 print("Please Select JSON file.")
                 return False
@@ -558,12 +587,18 @@ class MyGridLayout(MDGridLayout):
                 if not ext == '.json':
                     print("This file is not JSON. Please open a JSON file.")
                     return False
+                
+            # check validity of image path
+            datasetRoot = self.checkPathValidity(self.json_path)
+            if not datasetRoot:
+                return False
             
             # load a json file as dict
             self.jsons = self.openJsonImages(self.json_path)
-                    
-        elif json:
+            
+        elif not self.json and json:
             self.jsons = json
+            
         else:
             print("No json file")
             return False
@@ -572,27 +607,60 @@ class MyGridLayout(MDGridLayout):
         self.semiBool = False
 
         # load images
+        self.nodeNmb = 0
+        print(f"Load map keys {self.jsons.keys()}")
+        self.nodeList = [x for x in self.jsons.keys()]
+        # add rest of images not selected
+        self.nodeList.append("rest")
+        
         # torch data loader's shuffle must be false
         self.fileList = []
-        for fd_path, sb_fd, sb_f in os.walk('/dataset'):
+        for fd_path, sb_fd, sb_f in os.walk(datasetRoot):
             for imageFile in sb_f:
                 path = os.path.join(fd_path, imageFile)
                 self.fileList.append(path)
+        print(f"first files at {self.fileList[0]}")
 
-        self.nodeNmb = 0
-        self.nodeList = []
-        print(f"Load map keys {self.jsons.keys()}")
-        for key in self.jsons.keys():
-            self.nodeList.append(int(key))
-        # add rest of images not selected
-        self.nodeList.append("rest")
         return True
+    
+    def checkPathValidity(self, jsonPath):
+        if not jsonPath:
+            raise FileNotFoundError(f"There is not a json file at {jsonPath}")
+        
+        else:
+            
+            _, ext = os.path.splitext(jsonPath)
+            if not ext == '.json':
+                raise ValueError(f"This file is not json: {jsonPath}")
+            
+            else:
+            
+                j = self.openJsonImages(jsonPath)
+                k = list(j.keys())[0]
+                checkPath = j[k][0]
+                print(f"check a file at {checkPath}")
+                if not os.path.isfile(checkPath):
+                    raise FileNotFoundError(f"There is no file at {checkPath}")
+                
+                else:
+                    datasetRoot = os.path.split(checkPath)[0]
+                    return datasetRoot
+            
+        return False
+    
+    def showNodeHandler(self, res):
+        self.jsons = res
+        self.show_node(
+            self.startId, self.quantity, self.index, clustering=self.clustering
+        )
+
+    def on_labelSpinner(self, instance, text):
+        
+        self.root.ids.class_field.text = text
             
     
     
     
-    
-        
     
 class LoadDialog(FloatLayout):
     load = ObjectProperty(None)

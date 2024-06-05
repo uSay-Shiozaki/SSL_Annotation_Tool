@@ -9,15 +9,25 @@ class Timer(Widget):
     text = StringProperty()
     # When clicked
 
-    def on_countDown(self):
-        self.text = '3'
-        for i in range(3):
-            time.sleep(1)
-            self.text = str(int(self.text) - 1)
-            print(self.text)
+    def __init__(self, **kwargs):
+        self.startBool = True
+        super().__init__(**kwargs)
 
+    def _countDown(self, event):
+        self.text = str(int(self.text) - 1)
+        print(self.text)
+            
+    def on_countDown(self, event):
+        self.text = "4"
+        Clock.schedule_interval(self._countDown, 1.0)
+        if int(self.text) == 0:
+            self.startBool = False
+            
     def on_command(self, **kwargs):
-        Clock.schedule_interval(self.countUp, 0.1)
+        if self.startBool:
+            Clock.schedule_interval(self.on_countDown, 1.0)
+        else:
+            Clock.schedule_interval(self.countUp, 0.1)
 
     def countUp(self, dt):
         self.text = "{:.3f}".format(float(self.text) + 0.1)
@@ -26,15 +36,11 @@ class Timer(Widget):
         Clock.unschedule(self.countUp)
         print(self.text)
 
-    def startTimer(self):
-        if self.startBool:
-            self.on_countDown()
-            self.startBool = False
-        self.on_command()
-
     def stopTimer(self):
         self.countStop()
-
-    def __init__(self, **kwargs):
+        
+    def reset(self):
+        self.text = "0.0"
         self.startBool = True
-        super().__init__(**kwargs)
+
+

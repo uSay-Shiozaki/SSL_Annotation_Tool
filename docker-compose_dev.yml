@@ -20,6 +20,7 @@ services:
       - ./app/src/Lib:/app/Lib
       - ./database:/database
       - ${DATASET_PATH}:/dataset
+
     environment:
       - DISPLAY=$DISPLAY
     deploy:
@@ -30,7 +31,7 @@ services:
 
   server:
     image: img_server
-    container_name: ssl_server
+    container_name: kivy_server
     build:
       context: ./server
       dockerfile: Dockerfile

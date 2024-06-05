@@ -23,7 +23,7 @@ class MySmartTile(MDSmartTile):
         if self.press:
             with self.canvas.after:
                 if not self.myparent.selectSave:
-                    self.color = Color(1,1,1,0.8)
+                    self.color = Color(0,0,0,1)
                 else:
                     self.color = Color(1,0,0,0.8)
                 self.rect = Rectangle(pos=self.pos, size=self.size)

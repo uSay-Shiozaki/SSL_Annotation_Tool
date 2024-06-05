@@ -1,14 +1,14 @@
 from pydantic import BaseModel
 
 class SchemaOfInputDataPathRequest(BaseModel):
-    pretrained_weights: str
+    arch: str
     data_path: str
 
 class SchemaOfTableResponse(BaseModel):
     body: dict
     
 class SchemaOfSmSLwithiBOTRequest(BaseModel):
-    batch-size: int = 128
+    batch_size: int = 128
     epochs: int = 400
     distill_epochs: int = 150
     
@@ -16,44 +16,44 @@ class SchemaOfSmSLwithiBOTRequest(BaseModel):
     arch: str = "vit_small"
     patch_size: int = 16
     window_size: int = 7
-    input-size: int = 224
+    input_size: int = 224
     pretrained_weights: str
     checkpoint_key: str = "student"
     drop: float = 0.0
     attn_drop_rate: float = 0.0
-    drop-path: float = 0.1
+    drop_path: float = 0.1
     
-    model-ema: bool = True
-    model-ema-decay: float = 0.99996
-    model-ema-force-cpu: bool = False
+    model_ema: bool = True
+    model_ema_decay: float = 0.99996
+    model_ema_force_cpu: bool = False
     
     opt: str = "adamw"
-    opt-eps: float = 1e-8
-    opt-betas: bool = None
-    clip-grad: bool = None
+    opt_eps: float = 1e-8
+    opt_betas: bool = None
+    clip_grad: bool = None
     momentum: float = 0.9
-    weight-decay: float = 0.05
+    weight_decay: float = 0.05
     
     ched: str = "cosine"
     lr: float = 0.001
-    lr-noise: bool = None
-    lr-noise-pct: float = 0.67
-    lr-noise-std: float = 1.0
-    warmup-lr: float = 1e-06
-    min-lr: float = 1e-05
+    lr_noise: bool = None
+    lr_noise_pct: float = 0.67
+    lr_noise_std: float = 1.0
+    warmup_lr: float = 1e-06
+    min_lr: float = 1e-05
     layer_decay: float = 1.0
-    decay-epochs: int = 30
-    warmup-epochs: int = 5
-    cooldown-epochs: int = 10
-    patience-epochs: int = 10
-    decay-rate: float = 0.1
+    decay_epochs: int = 30
+    warmup_epochs: int = 5
+    cooldown_epochs: int = 10
+    patience_epochs: int = 10
+    decay_rate: float = 0.1
     dr: float = 0.1
     
-    color-jitter: float = 0.4
+    color_jitter: float = 0.4
     aa: str = "rand-m9-mstd0.5-incl"
     smoothing: float = 0.1
-    train-interpolation: str = "bicubic"
-    repeated-aug: bool = True
+    train_interpolation: str = "bicubic"
+    repeated_aug: bool = True
     
     reprob: float = 0.25
     remode: str = "pixel"
@@ -62,16 +62,16 @@ class SchemaOfSmSLwithiBOTRequest(BaseModel):
     
     mixup: float = 0.8
     cutmix: float = 1.0
-    cutmix-minmax: bool = None
-    mixup-prob: float = 1.0
-    mixup-switch-prob: float = 0.5
-    mixup-mode: str = "batch"
+    cutmix_minmax: bool = None
+    mixup_prob: float = 1.0
+    mixup_switch_prob: float = 0.5
+    mixup_mode: str = "batch"
     
-    teacher-model: str = "self"
-    teacher-path: str = ""
-    distillation-type: str = "none"
-    distillation-alpha: float = 0.5
-    distillation-tau: float = 1.0
+    teacher_model: str = "self"
+    teacher_path: str = ""
+    distillation_type: str = "none"
+    distillation_alpha: float = 0.5
+    distillation_tau: float = 1.0
     
     finetune: str = ""
     disable_weight_decay_on_cls_pos: bool = False
@@ -83,7 +83,7 @@ class SchemaOfSmSLwithiBOTRequest(BaseModel):
     data_path: str
     
     data_set: str = "IMNET"
-    inat-category: str = "name"
+    inat_category: str = "name"
     output_dir: str
     device: str = "cuda"
     seed: int = 0
@@ -91,7 +91,7 @@ class SchemaOfSmSLwithiBOTRequest(BaseModel):
     start_epoch: int = 0
     eval: bool = True
     num_workers: int = 10
-    pin-mem: bool = True
+    pin_mem: bool = True
     
     local_rank: int = 0
     dist_url: str = "env://"
