@@ -19,9 +19,9 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./app/src/Lib:/app/Lib
       - ./database:/database
-      - /media/irielab/win_drive1/ImageNet/imagenet-object-localization-challenge-2012/ILSVRC/Data/CLS-LOC/10class_train_val:/dataset
+      - ${DATASET_PATH}:/dataset
     environment:
-      - DISPLAY=:0
+      - DISPLAY=$DISPLAY
     deploy:
       resources:
         reservations:
@@ -42,7 +42,7 @@ services:
       - ./server/weights:/weights
       - ./server/src:/server/src
       - ./database:/database
-      - /media/irielab/win_drive1/ImageNet/imagenet-object-localization-challenge-2012/ILSVRC/Data/CLS-LOC/10class_train_val:/dataset
+      - ${DATASET_PATH}:/dataset
     networks:
       - app_network
     ipc: host
