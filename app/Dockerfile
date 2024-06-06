@@ -39,7 +39,7 @@ RUN hg clone https://hg.libsdl.org/SDL SDL \
   && ../configure \
   && make \
   && make install
-RUN python3 -m pip install cython kivy==2.1.0 kivymd=1.0.1 python-dotenv\
+RUN python3 -m pip install cython kivy==2.1.0 kivymd==1.0.1 python-dotenv\
   && apt-get autoremove -y
 COPY ./src/Lib /app/Lib
 # CMD ["python3", "/app/Lib/main.py"]
