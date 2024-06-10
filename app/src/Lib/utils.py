@@ -17,8 +17,16 @@ def getClusteringTable(obj):
         return resp['body']
     else:
         return "err"
-
+    
 def runSSL(obj):
+    print(f"Runnning SSL process but no function now.")
+    #TODO: make processes
+    
+    res = None
+    
+    return res
+
+def runClustering(obj):
     res = getClusteringTable(obj) 
     
     return res

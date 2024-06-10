@@ -235,7 +235,7 @@
     size_hint_x: None
     width: 200
     text: "start"
-    values: "SSL", "SmSL iBOT", "SmSL SwAV", "Load Annotation Data"
+    values: "Clust", "SSL",  "SmSL iBOT", "SmSL SwAV", "Load Annotation Data"
     sync_height: True
     option_cls: Factory.get("StartSpinnerOption")
     on_text: self.on_startSpinner(self, self.text)
@@ -286,6 +286,60 @@
             pos_hint: {'x':0.3, 'y':0.05}
             text: 'OK'
             on_release: root.dispatch('on_yes')
+
+<PopupArgumentsforClust>
+    FloatLayout:
+        Label:
+            text:root.message
+            pos_hint: {'x': 0.1, 'y': 0.4}
+            text: root.message
+
+        TextInput:
+            id:input_data_path_clust
+            size_hint: 0.4, 0.2
+            pos_hint: {'x': 0.3, 'y': 0.8}
+            hint_text: 'dataset path'
+            multiline: False
+
+        OpenDialogButton:
+            parent: root
+            text:'open'
+            size_hint: 0.15, 0.15
+            pos_hint: {'x':0.5, 'y':0.8}
+
+        ArchSpinnerforiBOT:
+            id: arch_spinner
+            size_hint: 0.3, 0.15
+            pos_hint: {'x':0.1, 'y':0.6}
+            text: "Model Size"
+            values: "vit_small"
+        
+        TextInput:
+            id: input_weight_path_clust
+            hint_text:'Weight Data'
+            size_hint: 0.4, 0.2
+            pos_hint: {'x': 0.3, 'y':0.8}
+            multiline: False
+
+        WarningLabel:
+            id: warning
+            parent: root
+            size_hint: 0.3, 0.15
+            pos_hint: {'x':0.1, 'y':0.4}
+
+        Button:
+            size_hint: 0.4, 0.35
+            pos_hint: {'x':0.1, 'y':0.05}
+            text: 'Run'
+            on_release: root.dispatch('on_yes')
+
+        Button:
+            size_hint: 0.4, 0.35
+            pos_hint: {'x':0.5, 'y':0.05}
+            text: 'Cancel'
+            on_release: root.dispatch('on_no')
+
+        
 
 <PopupArgumentsforSSL>:
     FloatLayout:

@@ -110,15 +110,15 @@ def main_eval(
     target: str = "test",
 ):
     cudnn.benchmark = True
-
-    if arch == "vit_small":
-        pretrained_weights = "/weights/ibot_small_pretrain.pth"
-    elif arch == "vit_base":
-        pretrained_weights = "/weights/ibot_base_pretrain.pth"
-    elif arch == "vit_large":
-        pretrained_weights = "/weights/ibot_large_pretrain.pth"
-    else:
-        sys.exit(1)
+    if pretrained_weights != "Weight Data" or pretrained_weights == None:
+        if arch == "vit_small":
+            pretrained_weights = "/weights/ibot_small_pretrain.pth"
+        elif arch == "vit_base":
+            pretrained_weights = "/weights/ibot_base_pretrain.pth"
+        elif arch == "vit_large":
+            pretrained_weights = "/weights/ibot_large_pretrain.pth"
+        else:
+            sys.exit(1)
 
     # ============ preparing data ... ============
     transform = pth_transforms.Compose(
