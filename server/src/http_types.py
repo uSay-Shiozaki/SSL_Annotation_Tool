@@ -3,7 +3,7 @@ from pydantic import BaseModel
 class SchemaOfInputDataPathRequest(BaseModel):
     arch: str
     data_path: str
-    pretrained_data: str
+    pretrained_weights: str
 
 class SchemaOfTableResponse(BaseModel):
     body: dict
