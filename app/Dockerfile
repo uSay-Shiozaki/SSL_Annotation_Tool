@@ -32,13 +32,6 @@ RUN apt-get install -y zlib1g-dev \
   python3-tk \
   xclip
 
-RUN hg clone https://hg.libsdl.org/SDL SDL \
-  && cd SDL \
-  && mkdir build \
-  && cd build \
-  && ../configure \
-  && make \
-  && make install
 RUN python3 -m pip install cython kivy==2.1.0 kivymd==1.0.1 python-dotenv\
   && apt-get autoremove -y
 COPY ./src/Lib /app/Lib

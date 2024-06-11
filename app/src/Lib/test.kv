@@ -292,8 +292,7 @@
         Label:
             text:root.message
             pos_hint: {'x': 0.1, 'y': 0.4}
-            text: root.message
-
+            size_hint: 0.8, 0.6
         TextInput:
             id:input_data_path_clust
             size_hint: 0.4, 0.2
@@ -320,6 +319,12 @@
             size_hint: 0.4, 0.2
             pos_hint: {'x': 0.3, 'y':0.8}
             multiline: False
+
+        OpenDialogButtonforClust:
+            parent: root
+            text:'open'
+            size_hint: 0.15, 0.15
+            pos_hint: {'x':0.5, 'y':0.8}
 
         WarningLabel:
             id: warning

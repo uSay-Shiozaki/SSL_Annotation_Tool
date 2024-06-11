@@ -23,6 +23,7 @@ class PopupArgumentsforSSL(Popup):
     def on_no(self):
         pass
 
+#TODO: integrate below two open dialog buttons
 
 class OpenDialogButton(Button):
     parent = None
@@ -32,6 +33,16 @@ class OpenDialogButton(Button):
         path = utils.openDirDialog()
         if path:
             self.parent.ids.input_data_path.text = path
+
+
+class OpenDialogButtonforWeightData(Button):
+    parent = None
+
+    def on_release(self, **kwargs):
+        super().__init__(**kwargs)
+        path = utils.openDirDialog()
+        if path:
+            self.parent.ids.input_weight_path_clust.text = path
 
 
 class PopupArgumentsforClust(Popup):
