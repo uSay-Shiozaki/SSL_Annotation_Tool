@@ -297,7 +297,7 @@
             id:input_data_path
             size_hint: 0.4, 0.2
             pos_hint: {'x': 0.3, 'y': 0.8}
-            hint_text: 'dataset path'
+            hint_text: 'Dataset Path'
             multiline: False
 
         OpenDialogButton:
@@ -310,21 +310,21 @@
             id: input_weight_path_clust
             hint_text:'Weight Data'
             size_hint: 0.4, 0.2
-            pos_hint: {'x': 0.3, 'y':0.8}
+            pos_hint: {'x': 0.3, 'y':0.6}
             multiline: False
 
         OpenDialogButtonforWeightData:
             parent: root
             text:'open'
             size_hint: 0.15, 0.15
-            pos_hint: {'x':0.7, 'y':0.8}
+            pos_hint: {'x':0.7, 'y':0.6}
 
         ArchSpinnerforiBOT:
             id: arch_spinner
             size_hint: 0.3, 0.15
-            pos_hint: {'x':0.1, 'y':0.6}
+            pos_hint: {'x':0.1, 'y':0.4}
             text: "Model Size"
-            values: "vit_small"
+            values: "vit_small", ""
 
         WarningLabel:
             id: warning
@@ -357,7 +357,7 @@
             id:input_data_path
             size_hint: 0.4, 0.2
             pos_hint: {'x':0.1, 'y':0.8}
-            hint_text: "dataset path"
+            hint_text: "Dataset Path"
             multiline: False
         
         OpenDialogButton:

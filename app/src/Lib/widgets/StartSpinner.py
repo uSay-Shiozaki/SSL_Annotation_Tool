@@ -44,7 +44,7 @@ class StartSpinner(Spinner):
     )
         if mode == 'clust':
             self.pop = pop = PopupArgumentsforClust(
-        title='arguments',
+        title='Arguments',
         size_hint=(0.4, 0.3),
         pos_hint={'x': 0.3, 'y': 0.35}
       )
@@ -54,7 +54,7 @@ class StartSpinner(Spinner):
       )
         if mode == 'ssl':
             self.pop = pop = PopupArgumentsforSSL(
-        title='arguments',
+        title='Arguments',
         size_hint=(0.4, 0.3),
         pos_hint={'x':0.3, 'y':0.35},
         )
@@ -77,7 +77,7 @@ class StartSpinner(Spinner):
     def _popup_yes_clust(self, instance):
         self.res = None
         self.json = {
-      "data_path": self.pop.ids.input_data_path_clust.text,
+      "data_path": self.pop.ids.input_data_path.text,
       "pretrained_weights": self.pop.ids.input_weight_path_clust.text,
       "arch": self.pop.ids.arch_spinner.text
     }
