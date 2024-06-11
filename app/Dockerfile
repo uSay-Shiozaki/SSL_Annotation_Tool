@@ -35,4 +35,4 @@ RUN apt-get install -y zlib1g-dev \
 RUN python3 -m pip install cython kivy==2.1.0 kivymd==1.0.1 python-dotenv\
   && apt-get autoremove -y
 COPY ./src/Lib /app/Lib
-# CMD ["python3", "/app/Lib/main.py"]
+CMD ["python3", "/app/Lib/main.py"]
