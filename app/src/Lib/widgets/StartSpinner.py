@@ -44,7 +44,7 @@ class StartSpinner(Spinner):
     )
         if mode == 'clust':
             self.pop = pop = PopupArgumentsforClust(
-        title='arguments',
+        title='Arguments',
         size_hint=(0.4, 0.3),
         pos_hint={'x': 0.3, 'y': 0.35}
       )
@@ -54,7 +54,7 @@ class StartSpinner(Spinner):
       )
         if mode == 'ssl':
             self.pop = pop = PopupArgumentsforSSL(
-        title='arguments',
+        title='Arguments',
         size_hint=(0.4, 0.3),
         pos_hint={'x':0.3, 'y':0.35},
         )

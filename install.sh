@@ -7,7 +7,7 @@ apt get install gdown
 # Pretrained-weight from CIFAR10 for iBOT
 gdown https://drive.google.com/uc?id=1nJwAcx8pDRTHo3eeyGz520DkY_dVP24G
 # move pth file to weight folder
-mv clustering_cifar10_ckp.pth ./server/weight/
+mv clustering_cifar10_ckp.pth ./server/weights/
 
 # Pretrained-weight from ImageNet for iBOT
 # gdown https://drive.google.com/uc?id=1BSnxAYuAAumpK9pgTRnKoC6UJGeDs_GC
