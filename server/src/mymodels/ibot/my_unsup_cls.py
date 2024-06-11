@@ -10,8 +10,6 @@ np.set_printoptions(threshold=np.inf)
 import os
 import sys
 
-sys.path.append("/mnt/home/irielab/workspace/projects/my_research")
-
 import argparse
 import copy
 import torch
@@ -167,8 +165,8 @@ def main_eval(
     # ============ evaluate unsup cls ... ============
     print("Evaluating unsupervised classification for val set...")
     if not data_path == None:
-        res = my_eval(
-            model, data_path, data_loader_val, arch, patch_size, n_clusters=10
+        res = kmeans_eval(
+            model, data_path, data_loader_val, arch, patch_size, n_clusters=10, target=target
         )
     else:
         logging.fatal("Argument Required: ERROR data_path is None")
@@ -199,7 +197,7 @@ def eval_unsup(model, data_loader):
 # MyFunctions
 
 
-def my_eval(
+def kmeans_eval(
     model,
     data_path,
     data_loader,
@@ -207,7 +205,7 @@ def my_eval(
     patch_size,
     n_clusters=10,
     k_means: bool = True,
-    target: str = "val",
+    target: str = "test",
 ):
     real_labels, pred_labels = [], []
     output_labels = []
