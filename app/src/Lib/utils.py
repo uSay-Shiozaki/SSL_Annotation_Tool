@@ -42,7 +42,7 @@ def saveDialog():
 
 def openDialog():
 
-    typ = [('JSON File', '*.json'), ('All', '*')]
+    typ = [('JSON File', '*.json'), ('Weight File', '*.pth'),('All', '*')]
     root = tk.Tk()
     root.withdraw()
     file = filedialog.askopenfilename(filetypes=typ)

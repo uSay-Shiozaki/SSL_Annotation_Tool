@@ -40,7 +40,7 @@ class OpenDialogButtonforWeightData(Button):
 
     def on_release(self, **kwargs):
         super().__init__(**kwargs)
-        path = utils.openDirDialog()
+        path = utils.openDialog()
         if path:
             self.parent.ids.input_weight_path_clust.text = path
 

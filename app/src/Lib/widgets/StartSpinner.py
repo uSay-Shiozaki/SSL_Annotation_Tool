@@ -77,7 +77,7 @@ class StartSpinner(Spinner):
     def _popup_yes_clust(self, instance):
         self.res = None
         self.json = {
-      "data_path": self.pop.ids.input_data_path_clust.text,
+      "data_path": self.pop.ids.input_data_path.text,
       "pretrained_weights": self.pop.ids.input_weight_path_clust.text,
       "arch": self.pop.ids.arch_spinner.text
     }
