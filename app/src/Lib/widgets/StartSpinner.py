@@ -79,7 +79,8 @@ class StartSpinner(Spinner):
         self.json = {
       "data_path": self.pop.ids.input_data_path.text,
       "pretrained_weights": self.pop.ids.input_weight_path_clust.text,
-      "arch": self.pop.ids.arch_spinner.text
+      "arch": self.pop.ids.arch_spinner.text,
+      "n_clusters": int(self.pop.ids.n_clusters.text),
     }
         if len(self.json["data_path"]) < 1 or self.json == "Model Size":
 

@@ -106,6 +106,7 @@ def main_eval(
     checkpoint_key: str = "student",
     data_path: str = None,
     target: str = "test",
+    n_clusters: int = 10,
 ):
     cudnn.benchmark = True
     if pretrained_weights != "Weight Data" or pretrained_weights == None:
@@ -166,7 +167,7 @@ def main_eval(
     print("Evaluating unsupervised classification for val set...")
     if not data_path == None:
         res = kmeans_eval(
-            model, data_path, data_loader_val, arch, patch_size, n_clusters=10, target=target
+            model, data_path, data_loader_val, arch, patch_size, n_clusters=n_clu, target=target
         )
     else:
         logging.fatal("Argument Required: ERROR data_path is None")

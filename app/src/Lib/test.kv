@@ -287,7 +287,7 @@
             text: 'OK'
             on_release: root.dispatch('on_yes')
 
-<PopupArgumentsforClust>
+<PopupArgumentsforClust>:
     FloatLayout:
         Label:
             text:root.message
@@ -325,12 +325,19 @@
             pos_hint: {'x':0.1, 'y':0.4}
             text: "Model Size"
             values: "vit_small", ""
+        
+        TextInput:
+            id: n_clusters
+            size_hint: 0.3, 0.2
+            pos_hint: {'x': 0.1, 'y': 0.2}
+            hint_text: '10'
+            multiline: False
 
         WarningLabel:
             id: warning
             parent: root
             size_hint: 0.3, 0.15
-            pos_hint: {'x':0.1, 'y':0.4}
+            pos_hint: {'x':0.1, 'y':0.1}
 
         Button:
             size_hint: 0.4, 0.35
