@@ -167,7 +167,7 @@ def main_eval(
     print("Evaluating unsupervised classification for val set...")
     if not data_path == None:
         res = kmeans_eval(
-            model, data_path, data_loader_val, arch, patch_size, n_clusters=n_clu, target=target
+            model, data_path, data_loader_val, arch, patch_size, n_clusters=n_clusters, target=target
         )
     else:
         logging.fatal("Argument Required: ERROR data_path is None")

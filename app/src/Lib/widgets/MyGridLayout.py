@@ -23,6 +23,7 @@ from kivy.network.urlrequest import UrlRequest
 import threading
 import requests
 import utils
+from widgets import PopupRaiseError
 
 load_dotenv()
 DIALOG_DEFAULT_PATH = "/database"
@@ -55,6 +56,7 @@ class MyGridLayout(MDGridLayout):
         self.nodeNmb = 0
         self.nodeList = []
         self.semiBool = False
+        self.fileList = []
         logging.info("GRID LAUNCHED")
 
         # print(f"self.fileList is below\n {self.fileList}")
@@ -220,7 +222,7 @@ class MyGridLayout(MDGridLayout):
             self.index = self.jsons[self.nodeList[nodeNmb]]
             # print("indiceList", indiceList)
             self.updateLabelText()
-            if self.fileList is None:
+            if len(self.fileList) < 1:
                 print("list is None")
                 self.add_widget(Label(text="No Images"))
             else:
@@ -267,7 +269,7 @@ class MyGridLayout(MDGridLayout):
             self.startId = self.len
             return
 
-        if self.fileList is None:
+        if len(self.fileList) < 1:
             self.add_widget(Label(text="No Images"))
         else:
             self.clear_all()
@@ -283,7 +285,7 @@ class MyGridLayout(MDGridLayout):
             self.startId = 0
             return
 
-        if self.fileList is None:
+        if len(self.fileList) < 1:
             self.add_widget(Label(text="No Images"))
             return
         else:
@@ -572,8 +574,10 @@ class MyGridLayout(MDGridLayout):
         print(file)
         return file
     
-    def openFile(self, json=None, dialog=True):
+    def openFile(self, json_path: str=None, dialog=True):
         global DIALOG_DEFAULT_PATH
+        if json_path:
+            self.jsons = self.openJsonImages(json_path)
         # add images on the list
         if dialog:
             self.json_path: str = utils.openDialog()
@@ -596,12 +600,15 @@ class MyGridLayout(MDGridLayout):
             # load a json file as dict
             self.jsons = self.openJsonImages(self.json_path)
             
-        elif not self.json and json:
-            self.jsons = json
-            
+        elif self.jsons:
+            datasetRoot = self.checkPathValidity(json_path)
+            self.mapLength = len(self.jsons)
+
         else:
             print("No json file")
             return False
+        
+
         
         # set SmSL mode off
         self.semiBool = False
@@ -619,6 +626,14 @@ class MyGridLayout(MDGridLayout):
             for imageFile in sb_f:
                 path = os.path.join(fd_path, imageFile)
                 self.fileList.append(path)
+        if len(self.fileList) <= 1:
+            print(f"there is no file in fileList.")
+            self.pop = pop = PopupRaiseError(
+            title='Raise Error',
+            text="No images found",
+            size_hint=(0.4, 0.3),
+            pos_hint={'x':0.3, 'y':0.35},
+                )
         print(f"first files at {self.fileList[0]}")
 
         return True
@@ -649,10 +664,16 @@ class MyGridLayout(MDGridLayout):
         return False
     
     def showNodeHandler(self, res):
-        self.jsons = res
-        self.show_node(
-            self.startId, self.quantity, self.index, clustering=self.clustering
-        )
+        print(res)
+
+        # load image list from json file made with clustering
+        success = self.openFile(json_path="/database/cluster_map.json", dialog=False)
+        if success:
+            self.show_node(
+                self.startId, self.quantity, self.index, clustering=self.clustering
+            )
+        else:
+            pass
 
     def on_labelSpinner(self, instance, text):
         

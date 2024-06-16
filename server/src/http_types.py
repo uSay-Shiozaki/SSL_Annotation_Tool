@@ -4,6 +4,7 @@ class SchemaOfInputDataPathRequest(BaseModel):
     arch: str
     data_path: str
     pretrained_weights: str
+    n_clusters: int
 
 class SchemaOfTableResponse(BaseModel):
     body: dict
