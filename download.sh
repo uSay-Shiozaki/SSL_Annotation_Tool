@@ -3,9 +3,9 @@ sudo apt install gdown
 
 # Pretrained-weight from CIFAR10 for iBOT
 # with output dim 1000
-if [ ! -e $"./database/clustering_cifar10_1000_ckp.pth" ];then
-    gdown https://drive.google.com/uc?id=1jhE1uu_vRFoybDD301KoD_8YsvKQvobm
-    mv ./clustering_cifar10_1000_ckp.pth ./database
+if [ ! -e $"./database/clustering_cifar10_1000_ckp_mod.pth" ];then
+    gdown https://drive.google.com/uc?id=1JzLO9dGwl4ZVnBLVGSIMZHDbvzSfFY3-
+    mv ./clustering_cifar10_1000_ckp_mod.pth ./database
 fi
 
 # with output dim 8192

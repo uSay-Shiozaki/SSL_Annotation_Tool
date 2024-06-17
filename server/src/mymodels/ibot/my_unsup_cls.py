@@ -99,7 +99,7 @@ def main_eval(
     arch="vit_small",
     patch_size: int = 16,
     window_size: int = 7,
-    out_dim: int = 8192,
+    out_dim: int = 1000,
     local_rank: int = 0,
     num_workers: int = 10,
     pretrained_weights: str = None,
