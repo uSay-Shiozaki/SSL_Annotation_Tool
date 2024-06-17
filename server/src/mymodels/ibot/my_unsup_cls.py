@@ -101,7 +101,7 @@ def main_eval(
     window_size: int = 7,
     out_dim: int = 1000,
     local_rank: int = 0,
-    num_workers: int = 10,
+    num_workers: int = 1,
     pretrained_weights: str = None,
     checkpoint_key: str = "student",
     data_path: str = None,
