@@ -94,19 +94,23 @@ class StartSpinner(Spinner):
             def _process():
                 print(self.json)
                 self.res = utils.runClustering(self.json)
+                print("clustering completed")
+
                 self._showNodeHandler()
                 self._popup_waiting_close()
 
             self._popup_close()
             self.popup_waiting()
-            self.thread1 = threading.Thread(target=_process, daemon=True)
+            self.thread1 = threading.Thread(target=_process)
             self.thread1.start()
+            
 
     def _popup_yes_ssl(self, instance):
         self.res = None
         self.json = {
             "data_path": self.pop.ids.input_data_path.text,
             "arch": self.pop.ids.arch_spinner.text,
+            "n_clusters": int(self.pop.ids.n_clusters.text)
         }
 
         if len(self.json['data_path']) < 1 or self.json == "Model Size":
@@ -134,6 +138,7 @@ class StartSpinner(Spinner):
     @mainthread
     def _showNodeHandler(self):
         self.root.ids.image_grid.showNodeHandler(self.res)
+        print("showing in node handler")
 
     def _popup_yes_smsl_ib(self, instance):
         # self.root.ids.image_grid.start_semisupervised_learning()

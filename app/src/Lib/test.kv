@@ -390,15 +390,26 @@
             size_hint: 0.3, 0.15
             pos_hint: {'x':0.1, 'y':0.4}
 
+        Label:
+            text: "The Number of Clusters"
+            size_hint: 0.3, 0.2
+            pos_hint: {'x': 0.1, 'y': 0.2}
+
+        TextInput:
+            id: n_clusters
+            size_hint: 0.1, 0.15
+            pos_hint: {'x': 0.4, 'y': 0.2}
+            hint_text: '10'
+
         Button:
-            size_hint: 0.4, 0.35
-            pos_hint: {'x':0.1, 'y':0.05}
+            size_hint: 0.1, 0.15
+            pos_hint: {'x':0.7, 'y':0.05}
             text: 'Run'
             on_release: root.dispatch('on_yes')
 
         Button:
-            size_hint: 0.4, 0.35
-            pos_hint: {'x':0.5, 'y':0.05}
+            size_hint: 0.1, 0.15
+            pos_hint: {'x':0.9, 'y':0.05}
             text: 'Cancel'
             on_release: root.dispatch('on_no')
 

@@ -179,7 +179,7 @@ class MyGridLayout(MDGridLayout):
                 self.add_widget(
                     Label(
                         text="END", 
-                        color="black",
+                        color="white",
                         ))
 
     def show_node(self, startId, quantity, nodeNmb, clustering=False):
@@ -256,7 +256,7 @@ class MyGridLayout(MDGridLayout):
         if startId + quantity >= self.len:
             self.add_widget(Label(
                 text="END",
-                color="black",
+                color="white",
                 ))
 
     def clear_all(self):
@@ -640,7 +640,7 @@ class MyGridLayout(MDGridLayout):
     
     def checkPathValidity(self, jsonPath):
         if not jsonPath:
-            raise FileNotFoundError(f"There is not a json file at {jsonPath}")
+            print(f"There is not a json file at {jsonPath}")
         
         else:
             
@@ -655,7 +655,7 @@ class MyGridLayout(MDGridLayout):
                 checkPath = j[k][0]
                 print(f"check a file at {checkPath}")
                 if not os.path.isfile(checkPath):
-                    raise FileNotFoundError(f"There is no file at {checkPath}")
+                    print(f"There is no file at {checkPath}")
                 
                 else:
                     datasetRoot = os.path.split(checkPath)[0]
@@ -666,6 +666,7 @@ class MyGridLayout(MDGridLayout):
     def showNodeHandler(self, res):
         print(res)
 
+        self.clear_all()
         # load image list from json file made with clustering
         success = self.openFile(json_path="/database/cluster_map.json", dialog=False)
         if success:

@@ -214,11 +214,14 @@ def kmeans_eval(
     metric_logger = utils.MetricLogger(delimiter="  ")
 
     files = []
+    # Root
     for v in os.listdir(os.path.join(data_path, target)):
-        fileList = os.listdir(os.path.join(os.path.join(data_path, target), v))
-        for file in fileList:
-            path = os.path.join(os.path.join(os.path.join(data_path, target), v), file)
-            files.append(path)
+        # class folder
+        if not v.startwith('.'):
+            fileList = os.listdir(os.path.join(os.path.join(data_path, target), v))
+            for file in fileList:
+                path = os.path.join(os.path.join(os.path.join(data_path, target), v), file)
+                files.append(path)
 
     predMap = {}
     with torch.no_grad():
@@ -270,6 +273,7 @@ def kmeans_eval(
 
         with open("/database/cluster_map.json", "w") as f:
             json.dump(predMap, f, indent=4)
+            print(f"cluster_map saved")
 
         return {"body": predMap}
 

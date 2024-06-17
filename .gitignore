@@ -1,3 +1,6 @@
 *.pth
 *.tar
-database
+database/*
+IMAGE_DATA
+*.zip
+*.png
