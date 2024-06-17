@@ -5,7 +5,7 @@ sudo apt install gdown
 # with output dim 1000
 if [ ! -e $"./database/clustering_cifar10_1000_ckp_mod.pth" ];then
     gdown https://drive.google.com/uc?id=1JzLO9dGwl4ZVnBLVGSIMZHDbvzSfFY3-
-    mv ./clustering_cifar10_1000_ckp_mod.pth ./database
+    sudo mv ./clustering_cifar10_1000_ckp_mod.pth ./database
 fi
 
 # with output dim 8192
@@ -24,7 +24,7 @@ if [ ! -e $"./IMAGE_DATA/cifar10_imagedata.zip" ];then
     mv ./cifar10_imagedata.zip ./IMAGE_DATA
 fi
 if [ ! -e $"./IMAGE_DATA/cifar10_imagedata" ];then
-    unzip ./IMAGE_DATA/cifar10_iamgedata.zip -d ./IMAGE_DATA/cifar-10
+    unzip ./IMAGE_DATA/cifar10_imagedata.zip -d ./IMAGE_DATA/cifar-10
 fi
 
 # CIFAR 10 with 1000 images
