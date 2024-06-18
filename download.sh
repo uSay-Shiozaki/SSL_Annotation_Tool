@@ -3,9 +3,9 @@ sudo apt install gdown
 
 # Pretrained-weight from CIFAR10 for iBOT
 # with output dim 1000
-if [ ! -e $"./database/clustering_cifar10_1000_ckp_mod.pth" ];then
-    gdown https://drive.google.com/uc?id=1JzLO9dGwl4ZVnBLVGSIMZHDbvzSfFY3-
-    sudo mv ./clustering_cifar10_1000_ckp_mod.pth ./database
+if [ ! -e $"./database/checkpoint_mod_2.pth" ];then
+    gdown https://drive.google.com/uc?id=13_VTa1WhIusnfWYoQlJ8GVFAUv1Njk8H
+    sudo mv ./checkpoint_mod_2.pth ./database
 fi
 
 # with output dim 8192
@@ -23,7 +23,7 @@ if [ ! -e $"./IMAGE_DATA/cifar10_imagedata.zip" ];then
     gdown https://drive.google.com/uc?id=1rdCZwn5jMQbKurscJTjM8jz3WkFgSlEc
     mv ./cifar10_imagedata.zip ./IMAGE_DATA
 fi
-if [ ! -e $"./IMAGE_DATA/cifar10_imagedata" ];then
+if [ ! -e $"./IMAGE_DATA/cifar-10" ];then
     unzip ./IMAGE_DATA/cifar10_imagedata.zip -d ./IMAGE_DATA/cifar-10
 fi
 

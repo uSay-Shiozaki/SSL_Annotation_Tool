@@ -19,7 +19,7 @@ class SchemaOfClusteringTableResponse(BaseModel):
     objectData: dict
 
 
-@app.post('/api/clustering', response_model=SchemaOfClusteringTableResponse)
+# @app.post('/api/clustering', response_model=SchemaOfClusteringTableResponse)
 def getClusteringTable(request_body: SchemaOfInputDataPathRequest):
     # convert to dict
     params = request_body.__dict__

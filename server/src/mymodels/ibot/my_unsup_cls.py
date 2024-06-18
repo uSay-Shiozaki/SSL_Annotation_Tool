@@ -34,7 +34,7 @@ import json
 from sklearn import preprocessing
 import torch.nn as nn
 import torch.distributed as dist
-
+from torchinfo import summary
 
 def eval_pred(label, pred, calc_acc=False):
     print("Calling eval_pred()")
@@ -101,7 +101,7 @@ def main_eval(
     window_size: int = 7,
     out_dim: int = 1000,
     local_rank: int = 0,
-    num_workers: int = 1,
+    num_workers: int = 10,
     pretrained_weights: str = None,
     checkpoint_key: str = "student",
     data_path: str = None,
@@ -109,15 +109,18 @@ def main_eval(
     n_clusters: int = 10,
 ):
     cudnn.benchmark = True
-    if pretrained_weights != "Weight Data" or pretrained_weights == None:
+    print(f"args of pretrained_weights: {pretrained_weights}")
+    if pretrained_weights == None:
         if arch == "vit_small":
             pretrained_weights = "/weights/ibot_small_pretrain.pth"
+            print("loaded ibot_small weight data with vit_small arch.")
         elif arch == "vit_base":
             pretrained_weights = "/weights/ibot_base_pretrain.pth"
         elif arch == "vit_large":
             pretrained_weights = "/weights/ibot_large_pretrain.pth"
         else:
             sys.exit(1)
+    print(f"pretrained weights loaded : {pretrained_weights}")
 
     # ============ preparing data ... ============
     transform = pth_transforms.Compose(
@@ -137,6 +140,7 @@ def main_eval(
         num_workers=num_workers,
         pin_memory=True,
         drop_last=False,
+        shuffle=False,
     )
     logging.info(f"Data loaded with {len(dataset_val)} val imgs.")
 
@@ -154,7 +158,11 @@ def main_eval(
     logging.info(f"Model {arch} {patch_size}x{patch_size} built.")
     model = utils.MultiCropWrapper(model, DINOHead(embed_dim, out_dim, act="gelu"))
     model.cuda(local_rank)
-    model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[local_rank])
+
+    # this caused that model requires "module".backbone.{layer_name}
+    # model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[local_rank])
+    summary(model)
+
     if not pretrained_weights == None:
         utils.restart_from_checkpoint(pretrained_weights, **{checkpoint_key: model})
         model.eval()
@@ -217,11 +225,11 @@ def kmeans_eval(
     # Root
     for v in os.listdir(os.path.join(data_path, target)):
         # class folder
-        if not v.startwith('.'):
-            fileList = os.listdir(os.path.join(os.path.join(data_path, target), v))
-            for file in fileList:
-                path = os.path.join(os.path.join(os.path.join(data_path, target), v), file)
-                files.append(path)
+
+        fileList = os.listdir(os.path.join(os.path.join(data_path, target), v))
+        for file in fileList:
+            path = os.path.join(os.path.join(os.path.join(data_path, target), v), file)
+            files.append(path)
 
     predMap = {}
     with torch.no_grad():
