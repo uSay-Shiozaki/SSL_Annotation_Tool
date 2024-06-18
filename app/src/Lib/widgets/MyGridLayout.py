@@ -76,6 +76,7 @@ class MyGridLayout(MDGridLayout):
         for tile in self.pressButtonList:
             tile.canvas.after.remove(tile.color)
             tile.canvas.after.remove(tile.rect)
+            tile.press = True
             
         if not self.selectSave:
             self.modeText = "Remove\n Target"
