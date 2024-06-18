@@ -156,11 +156,11 @@ def main_eval(
         # default num_classes=0
         embed_dim = model.embed_dim
     logging.info(f"Model {arch} {patch_size}x{patch_size} built.")
-    model = utils.MultiCropWrapper(model, DINOHead(embed_dim, out_dim, act="gelu"))
+    # model = utils.MultiCropWrapper(model, DINOHead(embed_dim, out_dim, act="gelu"))
     model.cuda(local_rank)
 
     # this caused that model requires "module".backbone.{layer_name}
-    # model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[local_rank])
+    model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[local_rank])
     summary(model)
 
     if not pretrained_weights == None:
