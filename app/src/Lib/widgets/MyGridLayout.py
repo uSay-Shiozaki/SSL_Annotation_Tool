@@ -91,7 +91,8 @@ class MyGridLayout(MDGridLayout):
         self.semiBool = False
         self.selectSave = False
         self.clustering = True
-        
+        self.tilesRemain = [] 
+
         success = self.openFile()
         if success:
             self.show_node(
