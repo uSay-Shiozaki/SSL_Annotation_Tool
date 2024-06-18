@@ -66,8 +66,9 @@ class MyGridLayout(MDGridLayout):
         Clock.schedule_interval(self.update, 0.1)
         
     def update(self, dt):
-        self.root.ids.preview.source = self.previewSrc
-        self.root.ids.preview.reload()
+
+        # self.root.ids.preview.reload()
+        pass
         
     def change_save_mode(self):
         self.selectSave = not self.selectSave

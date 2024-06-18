@@ -32,6 +32,7 @@ class StartSpinner(Spinner):
         elif text == "Load Annotation Data":
             print("Load Annotation Data")
             self.root.ids.image_grid.start()
+            # self.popup_open('load json as annotations', 'load-anno')
 
         instance.text = "start"
 
@@ -72,7 +73,15 @@ class StartSpinner(Spinner):
         on_yes=self._popup_yes_smsl_sw,
         on_no=self._popup_no,
       )
+        elif mode == 'load-anno':
+            pop.bind(
+                on_yes=self._popup_yes_load_anno,
+                on_no=self._popup_no,
+            )
         self.pop.open()
+
+    def _popup_yes_load_anno(self, inståce):
+        pass
 
     def _popup_yes_clust(self, instance):
         self.res = None

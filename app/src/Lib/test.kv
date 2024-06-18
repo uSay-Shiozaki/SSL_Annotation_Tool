@@ -1,3 +1,4 @@
+#:kivy 2.1.0
 #:import Factory kivy.factory.Factory
 
 <MainScreen>:
@@ -145,25 +146,22 @@
                         pos:self.pos
                         size: self.size
         BoxLayout:
+            id: preview_box
             orientation: 'vertical'
-            size_hint: .2,.2
+            size_hint: .4,.4
             pos_hint: {'top': 1}
-            canvas.before:
-                Color:
-                    rgba: 0.2, 0.2, 0.2, 1
+            canvas:
                 Rectangle:
+                    group: 'rect'
                     pos:self.pos
                     size: self.size
+                    source: 
             Label:
                 text: "Preview"
                 size_hint_y: None
                 height: 15
-            Image:
-                id: preview
-                source: ""
 
-
-
+  
 
 <ScrollView>:
     MDList:

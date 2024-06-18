@@ -63,6 +63,9 @@ class MySmartTile(MDSmartTile):
                         print(f"Removing Failed at {self.targetPath}")
 
             self.press = True
-        self.myparent.previewSrc = self.targetPath
+
+        # Updating Preview Box 
+        rect_canvas = self.myparent.root.ids.preview_box.canvas.get_group('rect')[0] 
+        rect_canvas.source = self.targetPath
         logging.debug(self.myparent.pressButtonList)
         logging.debug(self.myparent.selectFilePathList)

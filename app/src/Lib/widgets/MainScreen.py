@@ -33,19 +33,12 @@ class MainScreen(BoxLayout):
 
     def on_progress(self, req, current_size, total_size):
         print("On progress")
-
-    def getClusteringTable(self):
-        endPoint: str = 'http://ssl_server:8000/api/clustering'
-        res = UrlRequest(endPoint, method='POST', on_success=self.on_success, 
-                        on_failure=self.on_failure, on_error=self.on_error,
-                        on_progress=self.on_progress)
-        return res
         
     def export(self):
         savePath = utils.saveDialog()
         if savePath:
-            if os.path.exists('/database/temp_ssl.json'):
-                shutil.copyfile('/database/temp_ssl.json', savePath)
+            if os.path.exists('/database/cluster_map.json'):
+                shutil.copyfile('/database/cluster_map.json', savePath)
             else:
                 # raise FileNotFoundError("Please classify your data before export")
                 
