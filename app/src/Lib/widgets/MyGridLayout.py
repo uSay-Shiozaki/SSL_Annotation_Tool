@@ -57,6 +57,7 @@ class MyGridLayout(MDGridLayout):
         self.nodeList = []
         self.semiBool = False
         self.fileList = []
+        self.jsons = None
         logging.info("GRID LAUNCHED")
 
         # print(f"self.fileList is below\n {self.fileList}")
@@ -331,6 +332,10 @@ class MyGridLayout(MDGridLayout):
     def getFileList(self, path, quantity):
         list = os.listdir(path=path)[:quantity]
         return list
+    
+    def update_file_list(self, new_list):
+        if new_list:
+            self.jsons = new_list
 
     def save(self):
         
@@ -409,7 +414,7 @@ class MyGridLayout(MDGridLayout):
             # dump json file which has a file path user selected
             if self.root.ids.class_field.text:
 
-                self.writeJson(self.root.ids.class_field.text, "temp_ssl.json")
+                self.writeJson(self.root.ids.class_field.text, "cluser_map.json")
                 logging.info("saved json")
                 
                 # add a label to label spinner
@@ -519,31 +524,32 @@ class MyGridLayout(MDGridLayout):
                 originJson = json.load(f)
             if label in originJson.keys():
                 for target in targetList:
-                    originJson[label].append(target)
-                    set(originJson[label])
+                    originJson[label].append(target) # better using concat?
+                    originJson[label] = list(set(originJson[label]))
             else:
-                originJson[label] = targetList
+                originJson[label] = list(set(targetList))
 
-        # TODO add save remained images in self.tileRemains
+        #TODO add save remained images in self.tileRemains
         for p in targetList:
             if p in self.tiles:
                 self.tiles.remove(p)
                 
-        if self.modeRemain:
-            for p in targetList:
+            if self.modeRemain:
                 if p in self.tilesRemain:
                     self.tilesRemain.remove(p)
                 
         print(f"self.tiles has {len(self.tiles)} files")
+
+        # merge jsons
+        self.jsons.update(originJson)
         
         with open(os.path.join(SAVEDIR, fileName), "w") as f:
             json.dump(originJson, f, indent=4)
+
+        # update self.jsons to reload 
         self.jsons[str(self.nodeList[self.index])].clear()
         for v in self.tiles:
             self.jsons[str(self.nodeList[self.index])].append(v)
-            
-        with open('/database/temp_clustering.json', "w") as f:
-            json.dump(self.jsons, f, indent=4)
             
         targetList.clear()
         logging.info("dump json file of selected files")
@@ -652,7 +658,7 @@ class MyGridLayout(MDGridLayout):
                 raise ValueError(f"This file is not json: {jsonPath}")
             
             else:
-            
+
                 j = self.openJsonImages(jsonPath)
                 k = list(j.keys())[0]
                 checkPath = j[k][0]

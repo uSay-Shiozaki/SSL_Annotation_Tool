@@ -1,6 +1,7 @@
 *.pth
 *.tar
 database/*
-IMAGE_DATA
+IMAGE_DATA/*
+server/weights/*
 *.zip
 *.png

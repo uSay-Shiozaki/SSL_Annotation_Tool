@@ -1,6 +1,7 @@
 # install gdown to download file from my public drive.
 sudo apt install gdown
 
+sudo mkdir database
 # Pretrained-weight from CIFAR10 for iBOT
 # with output dim 1000
 if [ ! -e $"./database/clustering_cifar10_1000_ckp_mod.pth" ];then
@@ -21,7 +22,7 @@ fi
 # CIFAR 10 Image Dataset
 if [ ! -e $"./IMAGE_DATA/cifar10_imagedata.zip" ];then
     gdown https://drive.google.com/uc?id=1rdCZwn5jMQbKurscJTjM8jz3WkFgSlEc
-    mv ./cifar10_imagedata.zip ./IMAGE_DATA
+    sudo mv ./cifar10_imagedata.zip ./IMAGE_DATA
 fi
 if [ ! -e $"./IMAGE_DATA/cifar-10" ];then
     unzip ./IMAGE_DATA/cifar10_imagedata.zip -d ./IMAGE_DATA/cifar-10
@@ -30,7 +31,7 @@ fi
 # CIFAR 10 with 1000 images
 if [ ! -e $"./IMAGE_DATA/cifar10_1000images.zip" ];then
     gdown https://drive.google.com/uc?id=1cjv5dFF9GcUGkCMNR7RwqTeiuCrsekPa
-    mv ./cifar10_1000images.zip ./IMAGE_DATA
+    sudo mv ./cifar10_1000images.zip ./IMAGE_DATA
 fi
 
 if [ ! -e $"./IMAGE_DATA/cifar10_1000images" ];then
@@ -64,7 +65,7 @@ fi
 # CIFAR 10 with 50 images
 if [ ! -e $"./IMAGE_DATA/cifar10_50images.zip" ];then
     gdown https://drive.google.com/uc?id=1quh-ljI-8L5YR_KBWB9Z2d2ByVsQZCFe
-    mv ./cifar10_50images.zip ./IMAGE_DATA
+    sudo mv ./cifar10_50images.zip ./IMAGE_DATA
 fi
 
 if [ ! -e $"./IMAGE_DATA/cifar10_50images" ];then

@@ -10,6 +10,7 @@ from kivy.network.urlrequest import UrlRequest
 import asyncio
 import utils
 import shutil
+import json
 from widgets.PopupRaiseError import PopupRaiseError
 
 class MainScreen(BoxLayout):
@@ -37,8 +38,11 @@ class MainScreen(BoxLayout):
     def export(self):
         savePath = utils.saveDialog()
         if savePath:
-            if os.path.exists('/database/cluster_map.json'):
-                shutil.copyfile('/database/cluster_map.json', savePath)
+            target_json = self.ids.image_grid.jsons
+            if target_json:
+                filtered = {k: v for k, v in target_json.items() if len(v) != 0}
+                with open(savePath, 'w') as f:
+                    json.dump(filtered, f, indent=4)
             else:
                 # raise FileNotFoundError("Please classify your data before export")
                 
