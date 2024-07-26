@@ -16,6 +16,7 @@ fi
 # Pretrained-weight from ImageNet for iBOT
 if [ ! -e $"./server/weights/clustering_imagenet_ckp.pth" ];then
     gdown https://drive.google.com/uc?id=1BSnxAYuAAumpK9pgTRnKoC6UJGeDs_GC
+    sudo mkdir ./server/weights
     sudo mv ./clustering_imagenet_ckp.pth ./server/weights
 fi
 
@@ -75,6 +76,7 @@ fi
 # pretrained-weight from ImageNet for SwAV
 if [ ! -e $"./server/weights/swav_800ep_pretrain.pth.tar" ];then
     gdown https://drive.google.com/uc?id=15_K21qGvUvEqbkZKu0NHT2VyOtFgn5RR
+    sudo mkdir ./server/weights
     sudo mv ./swav_800ep_pretrain.pth.tar ./server/weights
 fi
 
