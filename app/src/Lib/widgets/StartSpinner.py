@@ -89,8 +89,13 @@ class StartSpinner(Spinner):
       "data_path": self.pop.ids.input_data_path.text,
       "pretrained_weights": self.pop.ids.input_weight_path_clust.text,
       "arch": self.pop.ids.arch_spinner.text,
-      "n_clusters": int(self.pop.ids.n_clusters.text),
+      "n_clusters": int(self.pop.ids.n_clusters.text) if self.pop.ids.n_clusters.text else 10,
     }
+        # initialize arguments if nothing.
+        if self.json['arch'] == '':
+            self.json['arch'] = 'vit_small'
+        
+        # validation
         if len(self.json["data_path"]) < 1 or self.json == "Model Size":
 
             def do(dt):
@@ -119,8 +124,14 @@ class StartSpinner(Spinner):
         self.json = {
             "data_path": self.pop.ids.input_data_path.text,
             "arch": self.pop.ids.arch_spinner.text,
-            "n_clusters": int(self.pop.ids.n_clusters.text)
+            "n_clusters": int(self.pop.ids.n_clusters.text) if self.pop.ids.n_clusters.text else 10,
         }
+
+        if self.json['n_clusters'] == '':
+            def do(dt):
+
+                self.pop.ids.warning.text = "please set the number of clusters"
+            cclock.schedule_once(do)
 
         if len(self.json['data_path']) < 1 or self.json == "Model Size":
             def do(dt):

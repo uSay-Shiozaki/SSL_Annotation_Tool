@@ -1,7 +1,9 @@
-# install gdown to download file from my public drive.
-sudo apt install gdown
+export PATH="$PATH:$HOME/.local/bin"
 
-sudo mkdir database
+# install gdown to download file from my public drive.
+#sudo apt install gdown
+
+#sudo mkdir database
 # Pretrained-weight from CIFAR10 for iBOT
 # with output dim 1000
 if [ ! -e $"./database/clustering_cifar10_1000_ckp_mod.pth" ];then
@@ -74,11 +76,11 @@ if [ ! -e $"./IMAGE_DATA/cifar10_50images" ];then
     sudo mv ./cifar10_50images ./IMAGE_DATA    
 fi
 # pretrained-weight from ImageNet for SwAV
-if [ ! -e $"./server/weights/swav_800ep_pretrain.pth.tar" ];then
-    gdown https://drive.google.com/uc?id=15_K21qGvUvEqbkZKu0NHT2VyOtFgn5RR
-    sudo mkdir ./server/weights
-    sudo mv ./swav_800ep_pretrain.pth.tar ./server/weights
-fi
+#if [ ! -e $"./server/weights/swav_800ep_pretrain.pth.tar" ];then
+#    gdown https://drive.google.com/uc?id=15_K21qGvUvEqbkZKu0NHT2VyOtFgn5RR
+#    sudo mkdir ./server/weights
+#    sudo mv ./swav_800ep_pretrain.pth.tar ./server/weights
+#fi
 
 # create docker network
-sudo docker network create app_network
+#sudo docker network create app_network

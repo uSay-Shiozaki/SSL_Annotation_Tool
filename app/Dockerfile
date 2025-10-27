@@ -1,4 +1,4 @@
-FROM nvidia/cudagl:11.4.2-devel-ubuntu20.04
+FROM ubuntu:20.04
 
 ENV NVIDIA_VISIBLE_DEVICES ${NVIDIA_VISIBLE_DEVICES:-all}
 ENV NVIDIA_DRIVER_CAPABILITIES ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
@@ -24,7 +24,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y ffmpeg \
   libavformat-dev \
   libavcodec-dev \
   libmtdev-dev
-RUN apt-get install -y zlib1g-dev \
+RUN apt-get update && apt-get install -y zlib1g-dev \
   libgstreamer1.0 \
   gstreamer1.0-plugins-base \
   gstreamer1.0-plugins-good \
