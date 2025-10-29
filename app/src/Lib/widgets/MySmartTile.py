@@ -40,7 +40,7 @@ class MySmartTile(MDSmartTile):
                 if not self in self.myparent.pressButtonList:
                     self.myparent.selectFilePathList.append(self.targetPath)
                     self.myparent.pressButtonList.append(self)
-                    self.myparent.tiles.remove(self.targetPath)
+                   #  self.myparent.tiles.remove(self.targetPath)
             self.press = False
         else:
             self.canvas.after.remove(self.color)
