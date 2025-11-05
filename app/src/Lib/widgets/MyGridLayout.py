@@ -61,11 +61,22 @@ class MyGridLayout(MDGridLayout):
         logging.info("GRID LAUNCHED")
 
         # print(f"self.fileList is below\n {self.fileList}")
+        
+        self.initialize_cluster_map()
 
         self.timer = Timer()
         self.previewSrc = ""
         Clock.schedule_interval(self.update, 0.1)
-        
+       
+    def initialize_cluster_map(self):
+        if os.path.exists("/database/cluster_map.json"):
+            os.remove("/database/cluster_map.json")
+            
+        init_map = "/database/cluster_map.json"
+        with open(init_map, mode='w') as f:
+            f.write('{}')
+        print("Initialized map file.")
+
     def update(self, dt):
 
         # self.root.ids.preview.reload()
@@ -78,6 +89,8 @@ class MyGridLayout(MDGridLayout):
             tile.canvas.after.remove(tile.color)
             tile.canvas.after.remove(tile.rect)
             tile.press = True
+        
+        self.pressButtonList = []
             
         if not self.selectSave:
             self.modeText = "Remove\n Target"
@@ -87,7 +100,7 @@ class MyGridLayout(MDGridLayout):
             self.root.ids.mode_change.background_color = "red"
         print(f"mode is {self.modeText} now")
         self.root.ids.mode_change.text = self.modeText
-
+        
     def start(self):
         self.clear_all()
         self.semiBool = False
@@ -346,16 +359,6 @@ class MyGridLayout(MDGridLayout):
                 self.write_selected_file(
                     self.root.ids.class_field.text, self.selectFilePathList
                 )
-                # add a label to label spinner
-                self.root.ids.label_spinner.values.append(
-                    self.root.ids.class_field.text)
-                self.root.ids.label_spinner.values.set()
-                print(f"current labels {self.root.ids.label_spinner.values}")
-                self.root.ids.label_spinner.text = "Labels"
-                
-                logging.info("saved json")
-                
-                # add a label to label spinner
                 print(self.root.ids)
                 values = self.root.ids.label_spinner.values
                 values.append(self.root.ids.class_field.text)
@@ -383,7 +386,7 @@ class MyGridLayout(MDGridLayout):
                 self.write_selected_file(
                     self.root.ids.class_field.text,
                     self.selectFilePathList,
-                    "self-labels.json",
+                    "cluster_map.json",
                 )
                 logging.info("saved json")
                 
@@ -414,7 +417,7 @@ class MyGridLayout(MDGridLayout):
             # dump json file which has a file path user selected
             if self.root.ids.class_field.text:
 
-                self.writeJson(self.root.ids.class_field.text, "cluser_map.json")
+                self.writeJson(self.root.ids.class_field.text, "cluster_map.json")
                 logging.info("saved json")
                 
                 # add a label to label spinner
@@ -483,25 +486,26 @@ class MyGridLayout(MDGridLayout):
         # load existed json file
         if os.path.exists(path):
             logging.info("Loading Json")
-            with open(path) as f:
-                jsons = json.load(f)
             # update json file
             for v in self.tiles:
-                if classText in jsons.keys():
-                    jsons[classText].append(v)
+                if classText in self.jsons.keys():
+                    self.jsons[classText].append(v)
                 else:
                     add = []
                     add.append(v)
-                    jsons[classText] = add
-                set(jsons[classText])
+                    self.jsons[classText] = add
+                set(self.jsons[classText])
+                if v in self.jsons[str(self.nodeList[self.index])]:
+                    self.jsons[str(self.nodeList[self.index])].remove(v)
+
 
         else:
             # write json file
-            jsons = {}
-            jsons[classText] = self.tiles
+            self.jsons[classText] = self.tiles
+            self.jsons[str(self.nodeList[self.index])].remove(v)
 
         with open(path, "w") as f:
-            json.dump(jsons, f, indent=4)
+            json.dump(self.jsons, f, indent=4)
         logging.info("wrote new json")
         
         self.tiles = []
@@ -509,25 +513,16 @@ class MyGridLayout(MDGridLayout):
     def extract_unselected_imageLabel(self, pressButtonList, fileList):
         pass
 
-    def write_selected_file(self, label, targetList, fileName="semi-labels.json"):
+    def write_selected_file(self, label, targetList, fileName="cluster_map.json"):
         global SAVEDIR
         logging.info("called write_selected_file()")
-
-        # TODO delete selected images in original cluster_map.json
-
-        if not os.path.isfile(os.path.join(SAVEDIR, fileName)):
-            originJson = {}
-            originJson[label] = targetList
-
+        assert len(targetList) > 0, "targetList invalid"
+        
+        if label not in self.jsons.keys():
+            self.jsons[label] = targetList
         else:
-            with open(os.path.join(SAVEDIR, fileName)) as f:
-                originJson = json.load(f)
-            if label in originJson.keys():
-                for target in targetList:
-                    originJson[label].append(target) # better using concat?
-                    originJson[label] = list(set(originJson[label]))
-            else:
-                originJson[label] = list(set(targetList))
+            self.jsons[label] += targetList
+            self.jsons[label] = list(set(self.jsons[label]))
 
         #TODO add save remained images in self.tileRemains
         for p in targetList:
@@ -539,19 +534,15 @@ class MyGridLayout(MDGridLayout):
                     self.tilesRemain.remove(p)
                 
         print(f"self.tiles has {len(self.tiles)} files")
+       
+        for target in targetList:
+           if target in self.jsons[str(self.nodeList[self.index])]:
+               self.jsons[str(self.nodeList[self.index])].remove(target)
 
-        # merge jsons
-        self.jsons.update(originJson)
-        
         with open(os.path.join(SAVEDIR, fileName), "w") as f:
-            json.dump(originJson, f, indent=4)
+            json.dump(self.jsons, f, indent=4)
 
-        # update self.jsons to reload 
-        self.jsons[str(self.nodeList[self.index])].clear()
-        for v in self.tiles:
-            self.jsons[str(self.nodeList[self.index])].append(v)
-            
-        targetList.clear()
+        targetList = []
         logging.info("dump json file of selected files")
 
     def random_extract(self, percent, targetList):
