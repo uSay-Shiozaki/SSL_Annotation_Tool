@@ -319,6 +319,7 @@ class MyGridLayout(MDGridLayout):
 
     def node_next(self):
         self.modeRemain = False
+
         if self.index < self.mapLength - 1:
             self.index += 1
             self.startId = 0
@@ -431,6 +432,7 @@ class MyGridLayout(MDGridLayout):
                 
                 # initialze text field
                 self.root.ids.class_field.text = ""
+                
             else:
                 logging.warning("text field is None")
                 return
@@ -516,7 +518,6 @@ class MyGridLayout(MDGridLayout):
     def write_selected_file(self, label, targetList, fileName="cluster_map.json"):
         global SAVEDIR
         logging.info("called write_selected_file()")
-        assert len(targetList) > 0, "targetList invalid"
         
         if label not in self.jsons.keys():
             self.jsons[label] = targetList
