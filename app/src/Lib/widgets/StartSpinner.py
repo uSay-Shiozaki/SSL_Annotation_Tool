@@ -22,31 +22,32 @@ class StartSpinner(Spinner):
             print("Clust")
             # self.root.ids.image_grid.runClust()
             self.popup_open("start clustering?", 'clust')
-            self.initialize()
+            
 
         if text == "SSL":
             print("SSL")
             # self.root.ids.image_grid.runSSL()
             self.popup_open('run SSL?', 'ssl')
-            self.initialize()
+
 
         elif text == "SmSL iBOT":
             print("SmSL with iBOT")
             # self.ids.image_grid.runSmSLwithiBOT()
             self.popup_open('run SmSL with iBOT?', 'smsl-ib')
-            self.initialize()
+
 
         elif text == "SmSL SwAV":
             print("SmSL with SwAV")
             # self.ids.image_grid.semi_learning_button()
             self.popup_open('run SmSL with SwAV', 'smsl-sw')
-            self.initialize()
+
 
         elif text == "Load Annotation Data":
             print("Load Annotation Data")
             self.root.ids.image_grid.start()
             # self.popup_open('load json as annotations', 'load-anno')
             self.initialize()
+
 
         instance.text = "start"
 
@@ -94,7 +95,7 @@ class StartSpinner(Spinner):
             )
         self.pop.open()
 
-    def _popup_yes_load_anno(self, inståce):
+    def _popup_yes_load_anno(self, instance):
         pass
 
     def _popup_yes_clust(self, instance):
@@ -131,6 +132,7 @@ class StartSpinner(Spinner):
             self.popup_waiting()
             self.thread1 = threading.Thread(target=_process)
             self.thread1.start()
+
             
 
     def _popup_yes_ssl(self, instance):
