@@ -15,6 +15,8 @@ class StartSpinner(Spinner):
         with open("/database/cluster_map.json", mode='w') as f:
             f.write("{}")
 
+        self.root.ids.image_grid.initialize_vars()
+
     def on_startSpinner(self, instance, text):
         if text == "Clust":
             print("Clust")
