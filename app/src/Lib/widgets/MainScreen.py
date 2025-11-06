@@ -41,6 +41,8 @@ class MainScreen(BoxLayout):
             target_json = self.ids.image_grid.jsons
             if target_json:
                 filtered = {k: v for k, v in target_json.items() if len(v) != 0}
+                print(target_json)
+                print(filtered)
                 with open(savePath, 'w') as f:
                     json.dump(filtered, f, indent=4)
             else:

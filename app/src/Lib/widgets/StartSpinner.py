@@ -3,36 +3,48 @@ from widgets.PopupWaiting import YNPopup, PopupWaiting
 from widgets.PopupArguments import PopupArgumentsforSSL, PopupArgumentsforClust
 import threading
 import utils
+import os
 from kivy.clock import mainthread, Clock
 
 class StartSpinner(Spinner):
     root = None
+
+    def initialize(self):
+        if os.path.exists("/database/cluster_map.json"):
+            os.remove("/database/cluster_map.json")
+        with open("/database/cluster_map.json", mode='w') as f:
+            f.write("{}")
 
     def on_startSpinner(self, instance, text):
         if text == "Clust":
             print("Clust")
             # self.root.ids.image_grid.runClust()
             self.popup_open("start clustering?", 'clust')
+            self.initialize()
 
         if text == "SSL":
             print("SSL")
             # self.root.ids.image_grid.runSSL()
             self.popup_open('run SSL?', 'ssl')
+            self.initialize()
 
         elif text == "SmSL iBOT":
             print("SmSL with iBOT")
             # self.ids.image_grid.runSmSLwithiBOT()
             self.popup_open('run SmSL with iBOT?', 'smsl-ib')
+            self.initialize()
 
         elif text == "SmSL SwAV":
             print("SmSL with SwAV")
             # self.ids.image_grid.semi_learning_button()
             self.popup_open('run SmSL with SwAV', 'smsl-sw')
+            self.initialize()
 
         elif text == "Load Annotation Data":
             print("Load Annotation Data")
             self.root.ids.image_grid.start()
             # self.popup_open('load json as annotations', 'load-anno')
+            self.initialize()
 
         instance.text = "start"
 
