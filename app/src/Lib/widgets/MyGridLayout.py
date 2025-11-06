@@ -82,16 +82,13 @@ class MyGridLayout(MDGridLayout):
         self.selectSave = True # to invert bool in the function.
         self.modeRemain = False
         self.pressButtonList = []
-        self.tiles = []
         self.nodeNmb = 0
         self.index = 0
         self.startId = 0
         self.pageId = 0
         self.tileId = 0
         self.tilesRemain = []
-        self.nodeList = []
         self.semiBool = False
-        self.fileList = []
 
         self.change_save_mode()
 
