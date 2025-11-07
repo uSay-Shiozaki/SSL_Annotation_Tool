@@ -1,6 +1,7 @@
 from kivymd.app import MDApp
 from kivy.core.window import Window
 from widgets.MainScreen import MainScreen
+from widgets.Controller import Controller # load before bulding.
 from kivy.properties import ListProperty
 from kivy.utils import rgba
 import asyncio

@@ -23,7 +23,7 @@ from kivy.network.urlrequest import UrlRequest
 import threading
 import requests
 import utils
-from widgets import PopupRaiseError
+from widgets.PopupRaiseError import PopupRaiseError
 
 load_dotenv()
 DIALOG_DEFAULT_PATH = "/database"
@@ -58,7 +58,7 @@ class MyGridLayout(MDGridLayout):
         self.semiBool = False
         self.fileList = []
         self.jsons = None
-        logging.info("GRID LAUNCHED")
+        logging.info("GRID LAUNCHED") 
 
         # logging.debug(f"self.fileList is below\n {self.fileList}")
         
@@ -87,7 +87,6 @@ class MyGridLayout(MDGridLayout):
         self.startId = 0
         self.pageId = 0
         self.tileId = 0
-        self.tilesRemain = []
         self.semiBool = False
 
         self.change_save_mode()
@@ -126,9 +125,25 @@ class MyGridLayout(MDGridLayout):
         self.selectSave = False
         self.clustering = True
         self.tilesRemain = [] 
+        self.tile = MySmartTile
 
         success = self.openFile()
         if success:
+            if 'remain' in self.jsons.keys():
+                for i, path in enumerate(self.jsons['remain']):
+                    self.tilesRemain.append(self.tile(
+                        parent=self,
+                        myid=f"{i}",
+                        source=path,
+                        targetPath=path,
+                        ))          
+                        
+                # remove remain paths in jsons
+                self.jsons.pop('remain')
+                self.nodeList.remove('remain')
+                self.mapLength -= 1
+
+            print(self.tilesRemain)
             self.show_node(
                 self.startId, self.quantity, self.nodeNmb, clustering=self.clustering
             )
@@ -148,6 +163,7 @@ class MyGridLayout(MDGridLayout):
     def open_remain(self):
         self.modeRemain = True
         logging.info("Calling show_remain()")
+        print(self.tilesRemain)
         self.clear_all()
         logging.debug(self.tilesRemain)
         self.startId = 0
@@ -155,8 +171,10 @@ class MyGridLayout(MDGridLayout):
         # initialize tiles in Remain
         for tile in self.tilesRemain:
             tile.press = False
-            tile.canvas.after.remove(tile.color)
-            tile.canvas.after.remove(tile.rect)
+            if hasattr(tile, "color"):
+                tile.canvas.after.remove(tile.color)
+            if hasattr(tile, "rect"):
+                tile.canvas.after.remove(tile.rect)
 
         self.show_remain(self.startId, self.quantity, self.tilesRemain)
 
@@ -199,7 +217,6 @@ class MyGridLayout(MDGridLayout):
         if startId < 0:
             startId = 0
             return
-        self.tile = MySmartTile
         if targetList is None:
             logging.debug("target list is None")
             self.add_widget(Label(text="No Images"))
@@ -256,7 +273,6 @@ class MyGridLayout(MDGridLayout):
             startId = 0
             return
 
-        self.tile = MySmartTile
         if clustering:
             logging.debug("On Clustering")
             files = self.jsons[str(self.nodeList[nodeNmb])]
@@ -449,7 +465,7 @@ class MyGridLayout(MDGridLayout):
                 logging.warning("text field is None")
                 return
 
-        else:
+        else: # In Remain Mode
             logging.info("Mode Saving Unselected Images")
             # dump json file which has a file path user selected
             if self.root.ids.class_field.text:
@@ -478,6 +494,10 @@ class MyGridLayout(MDGridLayout):
             self.rm_selected()
         else:
             logging.warning("plz select images")
+
+        
+        # autosave
+        self.root.controller.autosave(SAVEDIR, self.jsons, self.tilesRemain)
 
     def rm_selected(self):
         logging.debug(self.pressButtonList)
@@ -525,6 +545,7 @@ class MyGridLayout(MDGridLayout):
                     self.tilesRemain.remove(tile)
 
 
+
         # Make Save List of Tiles
         save_tiles = []
         for tile in self.tiles:
@@ -555,10 +576,6 @@ class MyGridLayout(MDGridLayout):
             tile.box_color = (0,0,0,0.5)
             # tile.disable = True
 
-        with open(path, "w") as f:
-            json.dump(self.jsons, f, indent=4)
-        logging.info("wrote new json")
-
     def extract_unselected_imageLabel(self, pressButtonList, fileList):
         pass
 
@@ -588,7 +605,7 @@ class MyGridLayout(MDGridLayout):
        
         # remove selected images from the node cluster.
         for tile in self.pressButtonList:
-            if tile.targetPath in self.jsons[tile.cluster]:
+            if (tile.cluster in self.jsons.keys()) and (tile.targetPath in self.jsons[tile.cluster]):
                 self.jsons[tile.cluster].remove(tile.targetPath)
                 logging.info(f"a tile in {tile.cluster} get removed: {tile.targetPath}")
             else:

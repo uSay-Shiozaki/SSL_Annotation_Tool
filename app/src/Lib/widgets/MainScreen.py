@@ -12,10 +12,13 @@ import utils
 import shutil
 import json
 from widgets.PopupRaiseError import PopupRaiseError
+from widgets.Controller import Controller
 
 class MainScreen(BoxLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.controller = Controller(root=self)
+
         print("Main Screen Launched")
         
     def on_success(self, req, res):
