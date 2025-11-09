@@ -1,0 +1,73 @@
+version: "3.9"
+
+services:
+  app:
+    image: img_kivyapp
+    container_name: kivy_app
+    depends_on:
+      - server
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    expose:
+      - 80
+    tty: true
+    networks:
+      - app_network
+    ulimits:
+      memlock: -1
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:ro
+      - /mnt/wslg:/mnt/wslg:ro
+      - ./app/src/Lib:/app/Lib
+      - app_data:/database
+      - ${DATASET_PATH}:/dataset
+    gpus: "all"
+    devices:
+      - /dev/dxg:/dev/dxg
+    user: "0:0"  # rootで起動して権限付与
+    environment:
+      - DISPLAY
+      - WAYLAND_DISPLAY
+      - XDG_RUNTIME_DIR
+      - PULSE_SERVER
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics
+      - LIBGL_ALWAYS_INDIRECT=0
+      - KIVY_HOME=/tmp/.kivy
+    command: >
+      bash -lc "mkdir -p /tmp/.kivy /database &&
+                chmod 777 /tmp/.kivy /database &&
+                exec python3 /app/Lib/main.py"
+
+  server:
+    image: img_server
+    container_name: kivy_server
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8000
+    expose:
+      - 8000
+    volumes:
+      - ./server/weights:/weights
+      - ./server/src:/server/src
+      - app_data:/database
+      - ${DATASET_PATH}:/dataset
+    networks:
+      - app_network
+    ipc: host
+    tty: true
+    ulimits:
+      memlock: -1
+    gpus: "all"
+
+networks:
+  app_network:
+    driver: bridge
+    external: true
+
+volumes:
+  app_data: {}
+
