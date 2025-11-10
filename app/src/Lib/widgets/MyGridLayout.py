@@ -538,6 +538,11 @@ class MyGridLayout(MDGridLayout):
             else:
                 self.tilesRemain += self.pressButtonList
             logging.debug("self.tilesRemain appended")
+            
+            # Erase the tiles in classText if re-editting.
+            for tile in self.pressButtonList:
+                if classText in self.jsons.keys() and tile.targetPath in self.jsons[classText]:
+                    self.jsons[classText].remove(tile.targetPath)
 
         else: # in Remain Mode
             for tile in self.pressButtonList:
@@ -560,7 +565,8 @@ class MyGridLayout(MDGridLayout):
         # update json file
         for tile in save_tiles:
             if classText in self.jsons.keys():
-                self.jsons[classText].append(tile.targetPath)
+                if tile.targetPath not in self.jsons[classText]: # check duplicates
+                    self.jsons[classText].append(tile.targetPath) 
             else:
                 add = []
                 add.append(tile.targetPath)
