@@ -35,6 +35,7 @@ from sklearn import preprocessing
 import torch.nn as nn
 import torch.distributed as dist
 from torchinfo import summary
+import torch.nn.functional as F
 
 def eval_pred(label, pred, calc_acc=False):
     print("Calling eval_pred()")
@@ -242,6 +243,7 @@ def kmeans_eval(
             # real_labels.append(utils.concat_all_gather(label))
             real_labels.append(label)
             output = model(inp)
+            output = F.normalize(output, p=2, dim=1)
 
             if k_means:
                 # to pass k-means
