@@ -35,6 +35,7 @@ from sklearn import preprocessing
 import torch.nn as nn
 import torch.distributed as dist
 from torchinfo import summary
+import torch.nn.functional as F
 
 def eval_pred(label, pred, calc_acc=False):
     print("Calling eval_pred()")
@@ -105,7 +106,6 @@ def main_eval(
     pretrained_weights: str = None,
     checkpoint_key: str = "student",
     data_path: str = None,
-    target: str = "test",
     n_clusters: int = 10,
 ):
     cudnn.benchmark = True
@@ -132,7 +132,7 @@ def main_eval(
         ]
     )
     # valdir = os.path.join(params.data_path, "val")
-    valdir = os.path.join(data_path, target)
+    valdir = data_path
     dataset_val = ImageFolder(valdir, transform=transform)
     data_loader_val = torch.utils.data.DataLoader(
         dataset_val,
@@ -175,7 +175,7 @@ def main_eval(
     print("Evaluating unsupervised classification for val set...")
     if not data_path == None:
         res = kmeans_eval(
-            model, data_path, data_loader_val, arch, patch_size, n_clusters=n_clusters, target=target
+            model, data_path, data_loader_val, arch, patch_size, n_clusters=n_clusters,
         )
     else:
         logging.fatal("Argument Required: ERROR data_path is None")
@@ -214,7 +214,6 @@ def kmeans_eval(
     patch_size,
     n_clusters=10,
     k_means: bool = True,
-    target: str = "test",
 ):
     real_labels, pred_labels = [], []
     output_labels = []
@@ -223,12 +222,12 @@ def kmeans_eval(
 
     files = []
     # Root
-    for v in os.listdir(os.path.join(data_path, target)):
+    for v in os.listdir(data_path):
         # class folder
 
-        fileList = os.listdir(os.path.join(os.path.join(data_path, target), v))
+        fileList = os.listdir(os.path.join(data_path, v))
         for file in fileList:
-            path = os.path.join(os.path.join(os.path.join(data_path, target), v), file)
+            path = os.path.join(os.path.join(data_path, v), file)
             files.append(path)
 
     predMap = {}
@@ -244,6 +243,7 @@ def kmeans_eval(
             # real_labels.append(utils.concat_all_gather(label))
             real_labels.append(label)
             output = model(inp)
+            output = F.normalize(output, p=2, dim=1)
 
             if k_means:
                 # to pass k-means
@@ -273,7 +273,7 @@ def kmeans_eval(
             )
 
         for i, pred in enumerate(kmeans_pred):
-            path = os.path.join(os.path.join(data_path, target), files[i])
+            path = os.path.join(data_path, files[i])
             if not str(pred) in predMap.keys():
                 predMap[str(pred)] = [path]
             else:

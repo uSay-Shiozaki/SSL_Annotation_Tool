@@ -27,6 +27,7 @@ async def handler(request: Request, exc:RequestValidationError):
 def getClusteringTable(params: SchemaOfInputDataPathRequest):
     # parse dict args
     params = params.dict()
+    print(params)
     clusteringTable = main_eval(**params)
     return clusteringTable
 

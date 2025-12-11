@@ -5,3 +5,4 @@ IMAGE_DATA/*
 server/weights/*
 *.zip
 *.png
+__pycache__

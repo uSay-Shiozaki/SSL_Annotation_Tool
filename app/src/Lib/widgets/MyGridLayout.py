@@ -60,6 +60,8 @@ class MyGridLayout(MDGridLayout):
         self.jsons = None
         logging.info("GRID LAUNCHED") 
 
+        self.tile = MySmartTile
+
         # logging.debug(f"self.fileList is below\n {self.fileList}")
         
         self.initialize_cluster_map()
@@ -119,13 +121,12 @@ class MyGridLayout(MDGridLayout):
         logging.debug(f"mode is {self.modeText} now")
         self.root.ids.mode_change.text = self.modeText
         
-    def start(self):
+    def load_annotation_data_start(self):
         self.clear_all()
         self.semiBool = False
         self.selectSave = False
         self.clustering = True
         self.tilesRemain = [] 
-        self.tile = MySmartTile
 
         success = self.openFile()
         if success:
@@ -538,6 +539,11 @@ class MyGridLayout(MDGridLayout):
             else:
                 self.tilesRemain += self.pressButtonList
             logging.debug("self.tilesRemain appended")
+            
+            # Erase the tiles in classText if re-editting.
+            for tile in self.pressButtonList:
+                if classText in self.jsons.keys() and tile.targetPath in self.jsons[classText]:
+                    self.jsons[classText].remove(tile.targetPath)
 
         else: # in Remain Mode
             for tile in self.pressButtonList:
@@ -560,7 +566,8 @@ class MyGridLayout(MDGridLayout):
         # update json file
         for tile in save_tiles:
             if classText in self.jsons.keys():
-                self.jsons[classText].append(tile.targetPath)
+                if tile.targetPath not in self.jsons[classText]: # check duplicates
+                    self.jsons[classText].append(tile.targetPath) 
             else:
                 add = []
                 add.append(tile.targetPath)
