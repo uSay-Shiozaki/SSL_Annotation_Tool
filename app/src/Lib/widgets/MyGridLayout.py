@@ -60,6 +60,8 @@ class MyGridLayout(MDGridLayout):
         self.jsons = None
         logging.info("GRID LAUNCHED") 
 
+        self.tile = MySmartTile
+
         # logging.debug(f"self.fileList is below\n {self.fileList}")
         
         self.initialize_cluster_map()
@@ -119,13 +121,12 @@ class MyGridLayout(MDGridLayout):
         logging.debug(f"mode is {self.modeText} now")
         self.root.ids.mode_change.text = self.modeText
         
-    def start(self):
+    def load_annotation_data_start(self):
         self.clear_all()
         self.semiBool = False
         self.selectSave = False
         self.clustering = True
         self.tilesRemain = [] 
-        self.tile = MySmartTile
 
         success = self.openFile()
         if success:

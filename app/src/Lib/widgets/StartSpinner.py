@@ -44,7 +44,7 @@ class StartSpinner(Spinner):
 
         elif text == "Load Annotation Data":
             print("Load Annotation Data")
-            self.root.ids.image_grid.start()
+            self.root.ids.image_grid.load_annotation_data_start()
             # self.popup_open('load json as annotations', 'load-anno')
             self.initialize()
 
