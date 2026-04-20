@@ -1,7 +1,6 @@
 import numpy as np
 import os
 import sys
-sys.path.append('/mnt/home/irielab/workspace/projects/imageTransactionTest_2')
 
 import argparse
 import copy
