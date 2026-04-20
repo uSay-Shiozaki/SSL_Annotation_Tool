@@ -72,9 +72,6 @@ FROM nvcr.io/nvidia/pytorch:22.07-py3 <- change this image to the matched image.
   Display an image the user clicked.
 
 ## Third-party code
-
-## Third-party code
-
 This repository includes code derived from the following open-source projects:
 
 - iBOT (bytedance/ibot)
@@ -91,6 +88,17 @@ Additional modifications for the annotation software, dataset handling, UI integ
 If you use this repository, please also cite the original papers:
 - Zhou et al., "iBOT: Image BERT Pre-Training with Online Tokenizer", ICLR 2022.
 - Caron et al., "Unsupervised Learning of Visual Features by Contrasting Cluster Assignments", NeurIPS 2020.
+
+- This repository contains original code by Yusei Shiozaki and third-party code derived from the following projects:
+
+- bytedance/ibot — Apache License 2.0
+- facebookresearch/swav — Creative Commons Attribution-NonCommercial 4.0 International
+
+See:
+- LICENSES/Apache-2.0.txt
+- LICENSES/CC-BY-NC-4.0.txt
+
+Files derived from these projects are identified in their file headers and in the README.
 
 
 
