@@ -71,6 +71,17 @@ FROM nvcr.io/nvidia/pytorch:22.07-py3 <- change this image to the matched image.
 ## Preview  
   Display an image the user clicked.
 
+## Third-party code
+
+This repository includes code derived from the iBOT official implementation:
+bytedance/ibot
+
+Original repository license: Apache License 2.0.
+See the LICENSE file in this repository for details.
+
+If you use this work, please also cite the iBOT paper:
+Zhou et al., "iBOT: Image BERT Pre-Training with Online Tokenizer", ICLR 2022.
+
 
 
 
