@@ -1,8 +1,6 @@
-# Copyright (c) ByteDance, Inc. and its affiliates.
-# All rights reserved.
-#
-# This source code is licensed under the license found in the
-# LICENSE file in the root directory of this source tree.
+# This file is based on code from bytedance/ibot.
+# Original source is licensed under the Apache License 2.0.
+# Modifications by Yusei Shiozaki, 2025.
 
 """
 Mostly copy-paste from torchvision references or other public repos like DETR:
