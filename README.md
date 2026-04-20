@@ -73,14 +73,24 @@ FROM nvcr.io/nvidia/pytorch:22.07-py3 <- change this image to the matched image.
 
 ## Third-party code
 
-This repository includes code derived from the iBOT official implementation:
-bytedance/ibot
+## Third-party code
 
-Original repository license: Apache License 2.0.
-See the LICENSE file in this repository for details.
+This repository includes code derived from the following open-source projects:
 
-If you use this work, please also cite the iBOT paper:
-Zhou et al., "iBOT: Image BERT Pre-Training with Online Tokenizer", ICLR 2022.
+- iBOT (bytedance/ibot)
+  - Original repository: https://github.com/bytedance/ibot
+  - License: Apache License 2.0
+
+- SwAV (facebookresearch/swav)
+  - Original repository: https://github.com/facebookresearch/swav
+  - License: see the original repository LICENSE file
+
+Parts of the training / feature extraction / clustering-related implementation are based on or adapted from these repositories.
+Additional modifications for the annotation software, dataset handling, UI integration, and experiment pipeline were made by [Your Name].
+
+If you use this repository, please also cite the original papers:
+- Zhou et al., "iBOT: Image BERT Pre-Training with Online Tokenizer", ICLR 2022.
+- Caron et al., "Unsupervised Learning of Visual Features by Contrasting Cluster Assignments", NeurIPS 2020.
 
 
 
